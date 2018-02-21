@@ -12,7 +12,8 @@ SenMLBinaryRecord::SenMLBinaryRecord(const char* name, SenMLUnit unit): SenMLRec
 
 bool SenMLBinaryRecord::set(unsigned char* value, unsigned int length, double time) 
 {
-    this->_value = value;
+    this->_value = (unsigned char*)malloc(length);
+    memcpy(this->_value, value, length);
     this->_length = length;
     return this->setTime(time);
 }

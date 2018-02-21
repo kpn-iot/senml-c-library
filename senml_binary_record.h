@@ -8,7 +8,7 @@ class SenMLBinaryRecord: public SenMLRecord
 public:
     SenMLBinaryRecord(const char* name);
     SenMLBinaryRecord(const char* name, SenMLUnit unit);
-    ~SenMLBinaryRecord(){};
+    ~SenMLBinaryRecord(){ if(this->_value) free(this->_value); };
 
 
     /*set the value and length.

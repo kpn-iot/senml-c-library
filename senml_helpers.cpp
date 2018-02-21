@@ -1,5 +1,10 @@
 #include <senml_helpers.h>
+
+#ifdef ESP32
+#include <base64.h>
+#else
 #include <Base64.h>
+#endif
 
 #include <arduino.h>
 
@@ -75,12 +80,17 @@ void printBinaryAsBase64(const unsigned char* data, unsigned int length, Stream*
 {
     int inputLen = sizeof(data);
 
-    int encodedLen = base64_enc_len(inputLen);
-    char encoded[encodedLen];
-        
-    // note input is consumed in this step: it will be empty afterwards
-    base64_encode(encoded, (const char*)data, inputLen); 
-    res->print(encoded);
+    #ifdef ESP32
+    String encoded = base64::encode((uint8_t*)data, inputLen);
+    res->print(encoded.c_str());
+    #else
+        int encodedLen = base64_enc_len(inputLen);
+        char encoded[encodedLen];
+            
+        // note input is consumed in this step: it will be empty afterwards
+        base64_encode(encoded, (const char*)data, inputLen); 
+        res->print(encoded);
+    #endif
 }
 
 void printUnit(SenMLUnit unit, Stream* res)
