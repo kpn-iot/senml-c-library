@@ -2,11 +2,6 @@
 #include <senml_base.h>
 #include <senml_pack.h>
 
-Stream* _senml_logger = NULL;
-
-void senMLSetLogger(Stream* logger){
-    _senml_logger = logger;
-};
 
 SenMLBase::SenMLBase(): _prev(NULL), _next(NULL)
 {

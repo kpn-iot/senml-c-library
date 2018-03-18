@@ -19,17 +19,17 @@ bool SenMLBinaryRecord::set(unsigned char* value, unsigned int length, double ti
 }
 
 
-void SenMLBinaryRecord::fieldsToJson(Stream *dest)
+void SenMLBinaryRecord::fieldsToJson()
 {
-    SenMLRecord::fieldsToJson(dest);
-    dest->print(",\"vd\":\"");
-    printBinaryAsBase64(this->_value, this->_length, dest);
-    dest->print("\"");
+    SenMLRecord::fieldsToJson();
+    printText(",\"vd\":\"", 7);
+    printBinaryAsBase64(this->_value, this->_length);
+    printText("\"", 1);
 }
 
-void SenMLBinaryRecord::fieldsToCbor(Stream *dest)
+void SenMLBinaryRecord::fieldsToCbor()
 {
-    SenMLRecord::fieldsToCbor(dest);
-    cbor_serialize_int(dest, SENML_CBOR_V_LABEL);
-    cbor_serialize_byte_string(dest, (const char*)this->_value, this->_length);
+    SenMLRecord::fieldsToCbor();
+    cbor_serialize_int(SENML_CBOR_VD_LABEL);
+    cbor_serialize_byte_string((const char*)this->_value, this->_length);
 }

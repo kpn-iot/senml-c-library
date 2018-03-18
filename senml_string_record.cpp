@@ -1,16 +1,18 @@
 #include <senml_string_record.h>
 #include <cbor.h>
+#include <senml_helpers.h>
 
-void SenMLStringRecord::fieldsToJson(Stream *dest)
+void SenMLStringRecord::fieldsToJson()
 {
-    SenMLRecord::fieldsToJson(dest);
-    dest->print(",\"vs\":\"");
-    dest->print(this->get());
-    dest->print("\"");
+    SenMLRecord::fieldsToJson();
+    printText(",\"vs\":\"", 7);
+    String val = this->get();
+    printText(val.c_str(), val.length());
+    printText("\"", 1);
 }
-void SenMLStringRecord::fieldsToCbor(Stream *dest)
+void SenMLStringRecord::fieldsToCbor()
 {
-    SenMLRecord::fieldsToCbor(dest);
-    cbor_serialize_int(dest, SENML_CBOR_VS_LABEL);
-    cbor_serialize_unicode_string(dest, this->get().c_str());
+    SenMLRecord::fieldsToCbor();
+    cbor_serialize_int(SENML_CBOR_VS_LABEL);
+    cbor_serialize_unicode_string(this->get().c_str());
 }

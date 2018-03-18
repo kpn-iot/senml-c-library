@@ -1,0 +1,54 @@
+
+#include <senml_int_pack.h> 
+#include <senml_helpers.h>
+#include <cbor.h>
+ 
+void SenMLIntPack::adjustForBaseValue(void* value, SenMLDataType dataType)
+{
+    switch (dataType)
+    {
+        case CBOR_TYPE_UINT:   *((uint64_t*)value) -= this->getBaseValue(); break;
+        case CBOR_TYPE_INT:    *((int64_t*)value) -= this->getBaseValue();  break;
+        case CBOR_TYPE_FLOAT:  *((float*)value) -= this->getBaseValue();    break;
+        case CBOR_TYPE_DOUBLE: *((double*)value) -= this->getBaseValue();   break;
+    }
+}
+
+void SenMLIntPack::fieldsToJson() 
+{
+    int val;
+    String strVal;
+    SenMLPack::fieldsToJson();
+    val = this->getBaseValue();
+    if(val != 0){
+        printText(",\"bv\":", 6);
+        strVal = val;
+        printText(strVal.c_str(), strVal.length());
+    }
+
+    val = this->getBaseSum();
+    if(val != 0){
+        printText(",\"bs\":", 6);
+        strVal = val;
+        printText(strVal.c_str(), strVal.length());
+    }
+
+}
+
+void SenMLIntPack::fieldsToCbor() 
+{
+    int val;
+    SenMLPack::fieldsToCbor();
+    
+    val = this->getBaseValue();
+    if(val){
+        cbor_serialize_int(SENML_CBOR_VB_LABEL);
+        cbor_serialize_int(val);
+    }
+
+    val = this->getBaseSum();
+    if(val){
+        cbor_serialize_int(SENML_CBOR_VS_LABEL);
+        cbor_serialize_int(val);
+    }
+}

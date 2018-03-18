@@ -1,11 +1,15 @@
 #ifndef KML_SENML
 #define KML_SENML
 
+#include <senml_logging.h>
 #include <senml_enums.h>
 #include <senml_base.h>
 #include <senml_record.h>
 #include <senml_record_t.h>
 #include <senml_pack.h>
+#include <senml_pack_t.h>
+#include <senml_int_pack.h>
+#include <senml_double_pack.h>
 #include <senml_binary_record.h>
 #include <senml_bool_record.h>
 #include <senml_float_record.h>

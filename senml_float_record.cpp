@@ -10,16 +10,16 @@ SenMLFloatRecord::SenMLFloatRecord(const char* name, SenMLUnit unit): SenMLRecor
 {
 }
 
-void SenMLFloatRecord::fieldsToJson(Stream *dest)
+void SenMLFloatRecord::fieldsToJson()
 {
-    SenMLRecord::fieldsToJson(dest);
-    dest->print(",\"v\":");
-    printDouble(this->get(), 16, dest);
+    SenMLRecord::fieldsToJson();
+    printText(",\"v\":", 5);
+    printDouble(this->get(), 16);
 }
 
-void SenMLFloatRecord::fieldsToCbor(Stream *dest)
+void SenMLFloatRecord::fieldsToCbor()
 {
-    SenMLRecord::fieldsToCbor(dest);
-    cbor_serialize_int(dest, SENML_CBOR_V_LABEL);
-    cbor_serialize_double(dest, this->get());
+    SenMLRecord::fieldsToCbor();
+    cbor_serialize_int(SENML_CBOR_V_LABEL);
+    cbor_serialize_double(this->get());
 }

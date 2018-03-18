@@ -1,6 +1,7 @@
 #include <senml_bool_actuator.h>
+#include <senml_logging.h>
 
-void SenMLBoolActuator::actuate(const char* value, SenMLDataType dataType)
+void SenMLBoolActuator::actuate(const char* value, int dataLength, SenMLDataType dataType)
 {
     if(dataType == SENML_TYPE_BOOL){
         if(this->callback){
@@ -9,6 +10,11 @@ void SenMLBoolActuator::actuate(const char* value, SenMLDataType dataType)
             this->callback(bVal);
         }
     }
-    else
+    else if(dataType == CBOR_TYPE_BOOL){
+        this->set((bool)*value);
+        this->callback((bool)*value);
+    }
+    else{
         log_debug("bool data type expected");
+    }
 }

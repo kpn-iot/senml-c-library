@@ -22,12 +22,12 @@ public:
     Inheriters can extend this function if they want to add extra fields to the json output
     Note: binary data is rendered as base64url-encoded
     */
-    void fieldsToJson(Stream *dest);
+    void fieldsToJson();
 
 protected:
 
     //renders all the fields to cbor format. renders all the fields of the object without the {}
-    void fieldsToCbor(Stream *dest) override;
+    virtual void fieldsToCbor();
     
 private:
     unsigned char* _value;                  //raw data buffer (not null terminated)

@@ -1,13 +1,16 @@
 #include <senml_pack.h>
 #include <senml_base.h>
 #include <senml_helpers.h>
-#include <senml_actuator_parser.h>
-#include <JsonStreamingParser.h>
+#include <senml_json_parser.h>
+#include <senml_cbor_parser.h>
+#include <senml_JsonStreamingParser.h>
 #include <math.h>
 #include <cbor.h>
+#include <senml_logging.h>
 
 
 
+//todo: inline these:
 void SenMLPack::setBaseName(const char* name)
 {
     this->_bn = name;
@@ -18,15 +21,11 @@ const char* SenMLPack::getBaseName()
     return this->_bn.c_str();
 }
 
-void SenMLPack::settBaseUnit(SenMLUnit unit)
+void SenMLPack::setBaseUnit(SenMLUnit unit)
 {
     this->_bu = unit;
 }
 
-SenMLUnit SenMLPack::getBaseUnit()
-{
-    return this->_bu;
-}
 
 void SenMLPack::setBaseTime(double time)
 {
@@ -39,10 +38,6 @@ void SenMLPack::setBaseTime(double time)
     }
 }
 
-double SenMLPack::getBaseTime()
-{
-    return this->_bt;
-}
 
 void SenMLPack::setLast(SenMLBase* value)
 {
@@ -70,6 +65,7 @@ bool SenMLPack::add(SenMLBase* item)
         item->setPrev(this);
     }
     this->_end = item;
+    return true;
 }
 
 bool SenMLPack::clear()
@@ -87,17 +83,38 @@ bool SenMLPack::clear()
     this->setPrev(NULL);
     this->_end = NULL;
     this->_start = NULL;
+    return true;
 }
 
-void SenMLPack::fromJson(Stream *source)
+void SenMLPack::fromJson(Stream *source, SenMLStreamMethod format)
 {
     JsonStreamingParser parser;
-    ActuatorListener listener(this);
+    SenMLJsonListener listener(this);
     
     parser.setListener(&listener);
-    char data = source->read();
+    char data;
+    if(format == SENML_RAW) {
+        #ifdef __MBED__
+            data = source->getc();
+        #else
+            data = source->read();
+        #endif
+    }
+    else{
+        data = readHexChar(source);
+    }
+        
     while(data != -1){
         parser.parse(data); 
+        if(format == SENML_RAW){
+            #ifdef __MBED__
+                data = source->getc();
+            #else
+                data = source->read();
+            #endif
+        }   
+        else
+            data = readHexChar(source);
     }
     // when we get here, all the data is stored in the document and callbacks have been called.
 }
@@ -105,7 +122,7 @@ void SenMLPack::fromJson(Stream *source)
 void SenMLPack::fromJson(const char *source)
 {
     JsonStreamingParser parser;
-    ActuatorListener listener(this);
+    SenMLJsonListener listener(this);
     
     parser.setListener(&listener);
     for(int i = 0; source[i] != 0; i++){
@@ -114,81 +131,89 @@ void SenMLPack::fromJson(const char *source)
     // when we get here, all the data is stored in the document and callbacks have been called.
 }
 
-void SenMLPack::toJson(Stream *dest)
+void SenMLPack::fromCbor(Stream* source, SenMLStreamMethod format)
 {
-    dest->print("[");
-    this->contentToJson(dest);
-    dest->print("]");
+    SenMLCborParser parser(this, source, format);
+    parser.parse();
 }
 
 
-void SenMLPack::fieldsToJson(Stream *dest)
+void SenMLPack::toJson(Stream *dest, SenMLStreamMethod format)
 {
-    dest->print("\"bn\":\"");
-    dest->print(this->_bn);
-    dest->print("\"");
+    StreamContext renderTo;                                              //set up the global record that configures the rendering. This saves us some bytes on the stack and in code by not having to pass along the values as function arguments.
+    renderTo.stream = dest;
+    renderTo.format = format;
+    _streamCtx = &renderTo;
+
+    printText("[", 1);
+    this->contentToJson();
+    printText("]", 1);
+}
+
+
+void SenMLPack::fieldsToJson()
+{
+    printText("\"bn\":\"", 6);
+    printText(this->_bn.c_str(), this->_bn.length());
+    printText("\"", 1);
     if(this->_bu){
-        dest->print(",\"bu\":\"");
-        printUnit(this->_bu, dest);
-        dest->print("\"");
+        printText(",\"bu\":\"", 7);
+        printUnit(this->_bu);
+        printText("\"", 1);
     }
     if(!isnan(this->_bt)){
-        dest->print(",\"bt\":");
-        printDouble(this->_bt, 16, dest);
+        printText(",\"bt\":", 6);
+        printDouble(this->_bt, 16);
     }
 }
 
-void SenMLPack::contentToJson(Stream *dest)
+void SenMLPack::contentToJson()
 {
-    dest->print("{");
-    this->fieldsToJson(dest);
+    printText("{", 1);
+    this->fieldsToJson();
     SenMLBase *next = this->_start;
     if(next && next->isPack() == false){                        //we can only inline the first record. If the first item is a Pack (child device), then don't inline it.
-        dest->print(",");
-        next->fieldsToJson(dest);
+        printText(",", 1);
+        next->fieldsToJson();
         next = next->getNext();
     }
-    dest->print("}");
+    printText("}", 1);
     while(next){
-        dest->print(",");
-        if(next->isPack() == false)
-            next->toJson(dest);
-        else
-            ((SenMLPack*)next)->contentToJson(dest);
+        printText(",", 1);
+        next->contentToJson();
         next = next->getNext();
     }
 }
 
-void SenMLPack::actuate(const char* pack, const char* record, const char* value, SenMLDataType dataType)
+
+void SenMLPack::toCbor(Stream *dest, SenMLStreamMethod format)
 {
-    if(this->callback)
-        this->callback(pack, record, value, dataType);
+    StreamContext renderTo;                                              //set up the global record that configures the rendering. This saves us some bytes on the stack and in code by not having to pass along the values as function arguments.
+    renderTo.stream = dest;
+    renderTo.format = format;
+    _streamCtx = &renderTo;
+
+    cbor_serialize_array(this->getArrayLength());
+    this->contentToCbor();
 }
 
-void SenMLPack::toCbor(Stream *dest)
+
+void SenMLPack::contentToCbor()
 {
-    Serial.println("start cbor");
-    cbor_serialize_array(dest, this->getArrayLength());
-    this->contentToCbor(dest);
-}
+    cbor_serialize_map(this->getFieldLength());
 
-
-void SenMLPack::contentToCbor(Stream *dest)
-{
-    cbor_serialize_map(dest, this->getFieldLength());
-
-    this->fieldsToCbor(dest);
+    this->fieldsToCbor();
     SenMLBase *next = this->_start;
     if(next && next->isPack() == false){                        //we can only inline the first record. If the first item is a Pack (child device), then don't inline it.
-        next->fieldsToCbor(dest);
+        next->fieldsToCbor();
         next = next->getNext();
     }
 
     while(next){
         if(next->isPack() == false)
-            next->contentToCbor(dest);
+            next->contentToCbor();
         else
-            ((SenMLPack*)next)->contentToCbor(dest);
+            ((SenMLPack*)next)->contentToCbor();
         next = next->getNext();
     }
 }
@@ -203,6 +228,7 @@ int SenMLPack::getArrayLength()
     }
     if(result == 0)                             //if there are no items in this pack, then we still render 1 array element, that of the pack itself.
         result = 1;
+    return result;
 }
 
 
@@ -220,16 +246,16 @@ int SenMLPack::getFieldLength()
     return result;
 }
 
-void SenMLPack::fieldsToCbor(Stream *dest)
+void SenMLPack::fieldsToCbor()
 {
-    cbor_serialize_int(dest, SENML_CBOR_BN_LABEL);
-    cbor_serialize_unicode_string(dest, this->_bn.c_str());
+    cbor_serialize_int(SENML_CBOR_BN_LABEL);
+    cbor_serialize_unicode_string(this->_bn.c_str());
     if(this->_bu){
-        cbor_serialize_int(dest, SENML_CBOR_BU_LABEL);
-        cbor_serialize_unicode_string(dest, senml_units_names[this->_bu]);
+        cbor_serialize_int(SENML_CBOR_BU_LABEL);
+        cbor_serialize_unicode_string(senml_units_names[this->_bu]);
     }
     if(!isnan(this->_bt)){
-        cbor_serialize_int(dest, SENML_CBOR_BT_LABEL);
-        cbor_serialize_double(dest, this->_bt);
+        cbor_serialize_int(SENML_CBOR_BT_LABEL);
+        cbor_serialize_double(this->_bt);
     }
 }

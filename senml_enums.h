@@ -3,10 +3,17 @@
 
 
 //data types that the value can have in senml
-enum SenMLDataType {SENML_TYPE_NR, SENML_TYPE_STRING, SENML_TYPE_BOOL, SENML_TYPE_DATA};
+enum SenMLDataType { //json data types:
+                    SENML_TYPE_NR, SENML_TYPE_STRING, SENML_TYPE_BOOL, SENML_TYPE_DATA,
+                    //cbor data types, which have already converted the data value
+                    CBOR_TYPE_UINT, CBOR_TYPE_INT, CBOR_TYPE_STRING, CBOR_TYPE_FLOAT, CBOR_TYPE_DOUBLE, CBOR_TYPE_BOOL, CBOR_TYPE_DATA
+                   };
 
 extern const char* senml_units_names[];
 
+//used by some functions to determine how data should be read/rendered to the stream: in the original format
+//or converted to hex values. The latter is used for serial communication with a modem such as a lora modem.
+enum SenMLStreamMethod {SENML_HEX, SENML_RAW};
 
 enum SenMLUnit {SENML_UNIT_NONE, 
                 SENML_UNIT_METER,

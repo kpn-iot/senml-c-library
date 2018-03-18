@@ -1,43 +1,10 @@
 #include <cbor.h>
+#include <senml_helpers.h>
 
 
-#define CBOR_TYPE_MASK          0xE0    /* top 3 bits */
-#define CBOR_INFO_MASK          0x1F    /* low 5 bits */
-
-/* Major types (cf. section 2.1) */
-/* Major type 0: Unsigned integers */
-#define CBOR_UINT8_FOLLOWS      24      /* 0x18 */
-#define CBOR_UINT16_FOLLOWS     25      /* 0x19 */
-#define CBOR_UINT32_FOLLOWS     26      /* 0x1a */
-#define CBOR_UINT64_FOLLOWS     27      /* 0x1b */
-
-#define CBOR_BYTE_FOLLOWS       24      /* indicator that the next byte is part of this item */
-
-/* Jump Table for Initial Byte (cf. table 5) */
-#define CBOR_UINT       0x00            /* type 0 */
-#define CBOR_NEGINT     0x20            /* type 1 */
-#define CBOR_BYTES      0x40            /* type 2 */
-#define CBOR_TEXT       0x60            /* type 3 */
-#define CBOR_ARRAY      0x80            /* type 4 */
-#define CBOR_MAP        0xA0            /* type 5 */
-#define CBOR_TAG        0xC0            /* type 6 */
-#define CBOR_7          0xE0            /* type 7 (float and other types) */
-
-/* Major type 6: Semantic tagging */
-#define CBOR_DATETIME_STRING_FOLLOWS        0
-#define CBOR_DATETIME_EPOCH_FOLLOWS         1
-
-/* Major type 7: Float and other types */
-#define CBOR_FALSE      (CBOR_7 | 20)
-#define CBOR_TRUE       (CBOR_7 | 21)
-#define CBOR_NULL       (CBOR_7 | 22)
-#define CBOR_UNDEFINED  (CBOR_7 | 23)
-/* CBOR_BYTE_FOLLOWS == 24 */
-#define CBOR_FLOAT16    (CBOR_7 | 25)
-#define CBOR_FLOAT32    (CBOR_7 | 26)
-#define CBOR_FLOAT64    (CBOR_7 | 27)
-#define CBOR_BREAK      (CBOR_7 | 31)
-
+#ifndef htons
+#define htons(x) ( ((x)<<8 & 0xFF00) | ((x)>>8 & 0x00FF) )
+#endif // !htons
 
 #ifndef  htonl
 #define htonl(x) ( ((x)<<24 & 0xFF000000UL) | \
@@ -50,6 +17,27 @@
 #define htonll(x) ((((uint64_t)htonl(x)) << 32) + htonl((x) >> 32))
 #endif // ! htonll
 
+
+#ifndef  ntohl
+#define ntohl(x) ( ((x) & 0xFF000000UL) >> 24 | \
+                   ((x) & 0x00FF0000UL) >> 8 | \
+                   ((x) & 0x0000FF00UL) << 8 | \
+                   ((x) & 0x000000FFUL) << 24 )
+#endif // ! ntohl
+
+
+
+/**
+ * Convert float @p x to host format
+ */
+static float ntohf(uint32_t x)
+{
+    union u {
+        float f;
+        uint32_t i;
+    } u = { .i = ntohl(x) };
+    return u.f;
+}
 
 /**
  * Convert double @p x to network format
@@ -73,6 +61,29 @@ static double ntohd(uint64_t x)
         uint64_t i;
     } u = { .i = htonll(x) };
     return u.d;
+}
+
+/**
+ * Source: CBOR RFC reference implementation
+ */
+double decode_float_half(unsigned char *halfp)
+{
+    int half = (halfp[0] << 8) + halfp[1];
+    int exp = (half >> 10) & 0x1f;
+    int mant = half & 0x3ff;
+    double val;
+
+    if (exp == 0) {
+        val = ldexp(mant, -24);
+    }
+    else if (exp != 31) {
+        val = ldexp(mant + 1024, exp - 25);
+    }
+    else {
+        val = mant == 0 ? INFINITY : NAN;
+    }
+
+    return (half & 0x8000) ? -val : val;
 }
 
 /**
@@ -109,81 +120,202 @@ static unsigned char uint_bytes_follow(unsigned char additional_info)
         return 0;
     }
 
-    static const unsigned char BYTES_FOLLOW[] = {1, 2, 4, 8};
+    const unsigned char BYTES_FOLLOW[] = {1, 2, 4, 8};
     return BYTES_FOLLOW[additional_info - CBOR_UINT8_FOLLOWS];
 }
 
-static size_t encode_int(unsigned char major_type, Stream* s, uint64_t val)
+static size_t encode_int(unsigned char major_type, uint64_t val)
 {
     unsigned char additional_info = uint_additional_info(val);
     unsigned char bytes_follow = uint_bytes_follow(additional_info);
-    s->write( (unsigned char) (major_type | additional_info));
+    unsigned char value = (major_type | additional_info);
+    printText( (const char*)&value, 1);
 
     for (int i = bytes_follow - 1; i >= 0; --i) {
-        s->write( (unsigned char) ((val >> (8 * i)) & 0xff));
+        value = (val >> (8 * i)) & 0xff;
+        printText((const char*)&value, 1);
     }
 
     return bytes_follow + 1;
 }
 
-static size_t encode_bytes(unsigned char major_type, Stream* s, const char *data, size_t length)
+size_t p(uint64_t *val)
+{
+
+    *val = 0; /* clear val first */
+
+    unsigned char in = readChar();
+    unsigned char bytes_follow = uint_bytes_follow(in);
+
+    switch (bytes_follow) {
+        case 0:
+            *val = (in & CBOR_INFO_MASK);
+            break;
+
+        case 1:
+            *val = readChar();
+            break;
+
+        case 2:
+            uint16_t data;
+            readChars((unsigned char*)&data, 2);
+            *val = htons(data);
+            break;
+
+        case 4:
+            uint32_t data32;
+            readChars((unsigned char*)&data32, 4);
+            *val = htonl(data32);
+            break;
+
+        default:
+            uint64_t data64;
+            readChars((unsigned char*)&data64, 8);
+            *val = htonll(data64);
+            break;
+    }
+
+    return bytes_follow + 1;
+}
+
+static size_t encode_bytes(unsigned char major_type, const char *data, size_t length)
 {
     size_t length_field_size = uint_bytes_follow(uint_additional_info(length)) + 1;
-    size_t bytes_start = encode_int(major_type, s, (uint64_t) length);
+    size_t bytes_start = encode_int(major_type, (uint64_t) length);
 
     if (!bytes_start) {
         return 0;
     }
 
-    s->write(data, length);
+    printText(data, length);
     return (bytes_start + length);
 }
 
-size_t cbor_serialize_array(Stream* stream, size_t array_length)
+size_t cbor_serialize_array(size_t array_length)
 {
     /* serialize number of array items */
-    return encode_int(CBOR_ARRAY, stream, array_length);
+    return encode_int(CBOR_ARRAY, array_length);
 }
 
-size_t cbor_serialize_map(Stream* stream, size_t map_length)
+size_t cbor_serialize_map(size_t map_length)
 {
     /* serialize number of item key-value pairs */
-    return encode_int(CBOR_MAP, stream, map_length);
+    return encode_int(CBOR_MAP, map_length);
 }
 
-size_t cbor_serialize_int(Stream* stream, int val)
+size_t cbor_serialize_int(int val)
 {
     if (val >= 0) {
         /* Major type 0: an unsigned integer */
-        return encode_int(CBOR_UINT, stream, val);
+        return encode_int(CBOR_UINT, val);
     }
     else {
         /* Major type 1: an negative integer */
-        return encode_int(CBOR_NEGINT, stream, -1 - val);
+        return encode_int(CBOR_NEGINT, -1 - val);
     }
 }
 
 
-size_t cbor_serialize_unicode_string(Stream* stream, const char *val)
+size_t cbor_serialize_unicode_string(const char *val)
 {
-    return encode_bytes(CBOR_TEXT, stream, val, strlen(val));
+    return encode_bytes(CBOR_TEXT, val, strlen(val));
 }
 
-size_t cbor_serialize_double(Stream* stream, double val)
+size_t cbor_serialize_double(double val)
 {
-    stream->write((unsigned char) CBOR_FLOAT64);
+    unsigned char value = CBOR_FLOAT64;
+    printText((const char*)&value, 1);
     uint64_t encoded_val = htond(val);
-    stream->write( (const uint8_t*)&encoded_val, 8);
+    printText( (const char*)&encoded_val, 8);
     return 9;
 }
 
-size_t cbor_serialize_bool(Stream* stream, bool val)
+size_t cbor_deserialize_float_half(float *val)
 {
-    stream->write( val ? CBOR_TRUE : CBOR_FALSE);
+    if (CBOR_TYPE != CBOR_7 || !val) {
+        return 0;
+    }
+
+    unsigned char dataType = readChar();
+    if (dataType == CBOR_FLOAT16) {
+        uint16_t data;
+        readChars((unsigned char*)&data, 2);
+        *val = (float)decode_float_half((unsigned char*)&data);
+        return 3;
+    }
+
+    return 0;
+}
+
+size_t cbor_deserialize_float(float *val)
+{
+    if (CBOR_TYPE != CBOR_7 || !val) {
+        return 0;
+    }
+
+    unsigned char dataType = readChar();
+
+    if (dataType == CBOR_FLOAT32) {
+        uint32_t data;
+        readChars((unsigned char*)&data, 4);
+        *val = ntohf(data);
+        return 5;
+    }
+    return 0;
+}
+
+size_t cbor_deserialize_double(double *val)
+{
+    if (CBOR_TYPE != CBOR_7 || !val) {
+        return 0;
+    }
+
+    unsigned char dataType = readChar();
+
+    if (dataType == CBOR_FLOAT64) {
+        uint64_t data;
+        readChars((unsigned char*)&data, 8);
+        *val = ntohd(data);
+        return 9;
+    }
+
+    return 0;
+}
+
+size_t cbor_deserialize_int64_t(int64_t *val)
+{
+    unsigned char type = CBOR_TYPE;
+    if ((type != CBOR_UINT && type != CBOR_NEGINT) || !val) {
+        return 0;
+    }
+
+    uint64_t buf;
+    size_t read_bytes = decode_int(&buf);
+
+    if (type == CBOR_UINT) 
+        *val = buf;                         /* resolve as CBOR_UINT */
+    else 
+        *val = -1 - buf;                    /* resolve as CBOR_NEGINT */
+    return read_bytes;
+}
+
+size_t cbor_deserialize_uint64_t(uint64_t *val)
+{
+    if (CBOR_TYPE != CBOR_UINT || !val) {
+        return 0;
+    }
+    return decode_int(val);
+}
+
+size_t cbor_serialize_bool(bool val)
+{
+    unsigned char value = (val ? CBOR_TRUE : CBOR_FALSE);
+    printText((const char*)&value , 1);
     return 1;
 }
 
-size_t cbor_serialize_byte_string(Stream* stream, const char *val, int length)
+size_t cbor_serialize_byte_string(const char *val, int length)
 {
-    return encode_bytes(CBOR_BYTES, stream, val, length);
+    return encode_bytes(CBOR_BYTES, val, length);
 }
+
