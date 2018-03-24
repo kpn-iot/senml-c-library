@@ -2,6 +2,7 @@
 
 #ifdef ESP32
     #include <base64.h>
+    #include <arduino.h>                        //needed for sprintf
 #elif __MBED__
     #include <base64.h>
     int base64_enc_len(int plainLen) {
@@ -12,7 +13,6 @@
     #include <Base64.h>
 #endif
 
-//#include <arduino.h>
 
 
 //global reference to the stream and stream configuration. This should save us memory
@@ -53,9 +53,9 @@ void printDouble(double f, unsigned int digits)
         g = 0;
         exponent = 0;
     }
-    if (digits < 16) { // display number rounded at last digit
-        g += 0.5 / pow(10, digits);
-    }
+    //if (digits < 16) { // display number rounded at last digit
+    //    g += 0.5 / pow(10, digits);
+    //}
 
     d = g;
     sprintf( & s[index++], "%d", d);
@@ -73,7 +73,7 @@ void printDouble(double f, unsigned int digits)
         d = int(g);
         sprintf( & s[index++], "%d", d);
     }
-    for(int i = digits -1; i >0; i--){                              //remove unwanted trailing 0
+    for(int i = index -1; i >0; i--){                              //remove unwanted trailing 0
         if(s[i] != '0'){
             if(s[i] == '.')                                         //if we end on something like x.  then add a last 0, so that it becomes x.0
                 s[i+ 1] = '0';
@@ -120,87 +120,108 @@ void printText(const char* value, int len)
 {
     char hexTable[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-    if(_streamCtx->format == SENML_RAW){
-        #ifdef __MBED__
-            for(int i = 0; i < len; i++)
-                _streamCtx->stream->putc(value[i]);
-        #else
-            _streamCtx->stream->write(value, len);
-        #endif
+    if(_streamCtx->dataAsBlob){
+        if(_streamCtx->format == SENML_RAW){
+            for(int i = 0; i < len; i++){
+                if(_streamCtx->data.blob.curPos >= _streamCtx->data.blob.length) return;            //if we reached the end of the buffer, stop rendering otherwise we overwrite some other mem which is not good.
+                _streamCtx->data.blob.data[_streamCtx->data.blob.curPos++] = value[i];
+            }
+        }
+        else{
+            for(int i = 0; i < len; i++){
+                if(_streamCtx->data.blob.curPos >= _streamCtx->data.blob.length) return;            //if we reached the end of the buffer, stop rendering otherwise we overwrite some other mem which is not good.
+                _streamCtx->data.blob.data[_streamCtx->data.blob.curPos++] = hexTable[value[i] / 16];
+                _streamCtx->data.blob.data[_streamCtx->data.blob.curPos++] = hexTable[value[i] % 16];
+            }
+        }
     }
-    else if (_streamCtx->format == SENML_HEX){
-        for(int i = 0; i< len; i++){
+    else{
+        if(_streamCtx->format == SENML_RAW){
             #ifdef __MBED__
-                _streamCtx->stream->putc(hexTable[value[i] /16]);
-                _streamCtx->stream->putc(hexTable[value[i] % 16]);
+                for(int i = 0; i < len; i++)
+                    _streamCtx->data.stream->putc(value[i]);
             #else
-                _streamCtx->stream->print(hexTable[value[i] /16]);
-                _streamCtx->stream->print(hexTable[value[i] % 16]);
+                _streamCtx->data.stream->write(value, len);
             #endif
+        }
+        else if (_streamCtx->format == SENML_HEX){
+            for(int i = 0; i< len; i++){
+                #ifdef __MBED__
+                    _streamCtx->data.stream->putc(hexTable[value[i] / 16]);
+                    _streamCtx->data.stream->putc(hexTable[value[i] % 16]);
+                #else
+                    _streamCtx->data.stream->print(hexTable[value[i] / 16]);
+                    _streamCtx->data.stream->print(hexTable[value[i] % 16]);
+                #endif
+            }
         }
     }
 }
 
-
 static bool peeked = false;                     //if we peek the stream in HEX format, we actually need to read 2 bytes, so the peek doesn't work, but we need to read the actual value.
-static char peekVal = 0;                        //these values are removed by the compiler if no cbor is used.
+static int peekVal = 0;                        //these values are removed by the compiler if no cbor is used.
 
-char readChar(){
-    if(_streamCtx->format == SENML_RAW){
-        #ifdef __MBED__
-            return _streamCtx->stream->getc();
-        #else
-            return _streamCtx->stream->read();
-        #endif
-    }
-    else if (_streamCtx->format == SENML_HEX){
-        if(peeked == true){
-            peeked = false;
-            return peekVal;
-        }
-        #ifdef __MBED__
-            int A = _streamCtx->stream->getc();
-            int B = _streamCtx->stream->getc();
-        #else
-            int A = _streamCtx->stream->read();
-            int B = _streamCtx->stream->read();
-        #endif
-        A = (A > '9')? (A &~ 0x20) - 'A' + 10: (A - '0');
-        B = (B > '9')? (B &~ 0x20) - 'A' + 10: (B - '0');
-        return (A * 16) + B;
-    }
-    else {                                                          //unsupported type
-        return -1;
-    }
-};
-
-
-char peekChar(){
-    if(_streamCtx->format == SENML_RAW){
-        #ifdef __MBED__
-            peekVal = _streamCtx->stream->getc();
-            peeked = true;
-            return peekVal;
-        #else
-            return _streamCtx->stream->peek();
-        #endif
-    }
-    else if (_streamCtx->format == SENML_HEX){
-        #ifdef __MBED__
-            int A = _streamCtx->stream->getc();
-            int B = _streamCtx->stream->getc();
-        #else
-            int A = _streamCtx->stream->read();
-            int B = _streamCtx->stream->read();
-        #endif
-        A = (A > '9')? (A &~ 0x20) - 'A' + 10: (A - '0');
-        B = (B > '9')? (B &~ 0x20) - 'A' + 10: (B - '0');
-        peekVal = (A * 16) + B;
-        peeked = true;
+int readChar(){
+    if(peeked == true){
+        peeked = false;
         return peekVal;
     }
-    else {                                                          //unsupported type
-        return -1;
-    }
+    int res;
+    if(_streamCtx->dataAsBlob){
+		if(_streamCtx->data.blob.curPos < _streamCtx->data.blob.length)         //peekchar has to return -1 if there is no more data, so check for this.
+			res = _streamCtx->data.blob.data[_streamCtx->data.blob.curPos++];
+		else
+			return -1;
+        if(_streamCtx->format == SENML_HEX){
+            int resB = _streamCtx->data.blob.data[_streamCtx->data.blob.curPos++];
+            res = (res > '9')? (res &~ 0x20) - 'A' + 10: (res - '0');
+	        resB = (resB > '9')? (resB &~ 0x20) - 'A' + 10: (resB - '0');
+            res = (res * 16) + resB;
+        }
+	} 
+	else {                                                                      //data is comming from the stream, this already returns -1 if there is no data.
+        if(_streamCtx->format == SENML_RAW){
+            #ifdef __MBED__
+                res = _streamCtx->data.stream->getc();
+            #else
+                res = _streamCtx->data.stream->available() ? _streamCtx->data.stream->read() : -1;                          //arduino stream, check if something is available, if not, we can't read anymore.
+            #endif
+        }
+        else{
+            int resB;
+            #ifdef __MBED__
+                res = _streamCtx->data.stream->getc();
+                resB = _streamCtx->data.stream->getc();
+            #else
+              
+                if(_streamCtx->data.stream->available())
+                    res = _streamCtx->data.stream->read();
+                else
+                    return -1;
+                if(_streamCtx->data.stream->available())
+                    resB = _streamCtx->data.stream->read();
+                else
+                    return -1;
+            #endif
+            res = (res > '9')? (res &~ 0x20) - 'A' + 10: (res - '0');
+            resB = (resB > '9')? (resB &~ 0x20) - 'A' + 10: (resB - '0');
+            res = (res * 16) + resB;
+        }
+	}
+    return res;
 };
+
+int peekChar(){
+    if(peeked == true)                                                              //if already peeked, return the currently buffered value.
+        return peekVal;
+    peekVal = readChar();
+    if(peekVal != -1)                                                               //if no more data, don't try to buffer it, some new data might arrive later on
+        peeked = true;
+    return peekVal;
+};
+
+void flush(){
+    peeked = false;
+}
+
 

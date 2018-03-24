@@ -2,27 +2,42 @@
 #include <senml_helpers.h>
 #include <senml_binary_actuator.h>
 
-void SenMLCborParser::parse()
+void SenMLCborParser::parse(Stream* source)
 {
-    _streamCtx = &this->ctx;                                     //set the global variable so that we don't have to pass it along on the stack all the time (saves mem & codesize)
-    while (peekChar() > -1) {
-        unsigned int read_bytes = this->parseNext();
-
-        if (read_bytes == 0) {
-            log_debug("invalid input");
-            return;
-        }
-    }
+    this->ctx.data.stream = source;
+    this->ctx.dataAsBlob = false;
+    this->internalParse();
 }
 
+
+void SenMLCborParser::parse(char* source, int length)
+{
+    this->ctx.data.blob.data = source;
+    this->ctx.data.blob.curPos = 0;
+    this->ctx.data.blob.length = length;
+    this->ctx.dataAsBlob = true;
+    this->internalParse();
+}
+
+void SenMLCborParser::internalParse()
+{
+    unsigned int read_bytes = this->processArray();         //the root element of senml input is always an array. We do this cause the readable() function on mbed doesn't work as expected, so we can't read until there is no more data, we need to read until we have valid input.
+
+    if (read_bytes == 0) {
+        log_debug("invalid input");
+    }
+    flush();                                                    //make certain that the input streams are empty when done. This also resets any internally stored data. If we don't do this, we can only handle 1 bad input stream, ten it breaks.
+}
+
+#include <arduino.h>
 
 void SenMLCborParser::processDouble(double value){
     switch (this->curLabel)
     {
         //case SENML_CBOR_S_LABEL:
-        case SENML_CBOR_BV_LABEL: this->baseValue.baseDouble = value; break;
+        case SENML_CBOR_BV_LABEL: this->ctx.baseValue.baseDouble = value; break;
         case SENML_CBOR_V_LABEL:
-            double calculated = this->baseValue.baseDouble + value;
+            double calculated = this->ctx.baseValue.baseDouble + value;
             this->setValue(&calculated, sizeof(double), CBOR_TYPE_DOUBLE); 
             break;
     }
@@ -42,7 +57,7 @@ unsigned int SenMLCborParser::parseNext()
             float floatVal;
             double doubleVal;
             size_t read_bytes;
-            switch ((int)peekChar()) {
+            switch (peekChar()) {
                 case CBOR_FALSE:   
                     readChar();                                         //need to remove the char from the stream.
                     boolRes = false;
@@ -74,7 +89,7 @@ unsigned int SenMLCborParser::parseNext()
 void SenMLCborParser::setValue(void* value, int length, SenMLDataType type)
 {
     if(this->curRec){
-        this->curRec->actuate((const char*)value, length, type);
+        this->curRec->actuate(value, length, type);
     }
     else {
         SenMLPack* pack = this->curPack;
@@ -98,3 +113,9 @@ void SenMLCborParser::setBinaryValue(const char* value, int length)
             pack->actuate(this->curPackName.c_str(), this->curRecName.c_str(), value, length, CBOR_TYPE_DATA);
     }
 }
+
+
+
+
+
+

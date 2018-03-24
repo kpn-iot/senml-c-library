@@ -1,23 +1,24 @@
 #include <senml_float_actuator.h>
 #include <senml_logging.h>
 
-void SenMLFloatActuator::actuate(const char* value, int dataLength, SenMLDataType dataType)
+void SenMLFloatActuator::actuate(const void* value, int dataLength, SenMLDataType dataType)
 {
-    if(dataType == SENML_TYPE_NR){
-        if(this->callback){
-            double dVal = atof(value);
-            this->set(dVal);
-            this->callback(dVal);
-        }
-    }
-    else if(dataType == CBOR_TYPE_DOUBLE){
-        this->set((double)*value);
-        this->callback((double)*value);
+    if(dataType == SENML_TYPE_NR || dataType == CBOR_TYPE_DOUBLE){
+        this->set((float)*((double*)value));
+        if(this->callback)
+            this->callback((float)*((double*)value));
     }
     else if(dataType == CBOR_TYPE_FLOAT){
-        this->set((float)*value);
-        this->callback((float)*value);
+        this->set(*((float*)value));
+        if(this->callback)
+            this->callback(*((float*)value));
     }
     else
-        log_debug("nr data type expected");
+        log_debug("invalid type");
 }
+
+
+
+
+
+

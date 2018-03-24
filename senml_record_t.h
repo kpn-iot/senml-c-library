@@ -30,3 +30,9 @@ private:
 };
 
 #endif // SENMLRECORDTEMPLATE
+
+
+
+
+
+

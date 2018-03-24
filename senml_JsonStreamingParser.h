@@ -74,7 +74,7 @@ class JsonStreamingParser {
         int stackPos;
         JsonListener* myListener;
 
-        bool doEmitWhitespace = false;
+        //bool doEmitWhitespace = false;
         // fixed length buffer array to prepare for c code
         char buffer[BUFFER_MAX_LENGTH];
         int bufferPos;
@@ -141,3 +141,9 @@ class JsonStreamingParser {
 };
 
 #endif
+
+
+
+
+
+

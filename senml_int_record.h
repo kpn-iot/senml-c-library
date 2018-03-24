@@ -23,6 +23,13 @@ public:
 protected:
 
 private:
+    int getAdjustedValue();
 };
 
 #endif // SENMLINTRECORD
+
+
+
+
+
+

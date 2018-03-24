@@ -6,8 +6,8 @@
 class SenMLStringRecord: public SenMLRecordTemplate<String>
 {
 public:
-    SenMLStringRecord(const char* name);
-    SenMLStringRecord(const char* name, SenMLUnit unit);
+    SenMLStringRecord(const char* name):  SenMLRecordTemplate(name){};
+    SenMLStringRecord(const char* name, SenMLUnit unit):  SenMLRecordTemplate(name, unit){};
     SenMLStringRecord(const char* name, SenMLUnit unit, const char* value):  SenMLRecordTemplate(name, unit, value){};
     //~SenMLStringRecord(){};
 
@@ -26,3 +26,9 @@ private:
 };
 
 #endif // SENMLSTRINGRECORD
+
+
+
+
+
+

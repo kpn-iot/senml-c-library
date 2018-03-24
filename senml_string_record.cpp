@@ -16,3 +16,9 @@ void SenMLStringRecord::fieldsToCbor()
     cbor_serialize_int(SENML_CBOR_VS_LABEL);
     cbor_serialize_unicode_string(this->get().c_str());
 }
+
+
+
+
+
+

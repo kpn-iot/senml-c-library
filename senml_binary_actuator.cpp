@@ -29,32 +29,37 @@
     #include <Base64.h>
 #endif
 
-void SenMLBinaryActuator::actuate(const char* value, int dataLength, SenMLDataType dataType)
+void SenMLBinaryActuator::actuate(const void* value, int dataLength, SenMLDataType dataType)
 {
     if(dataType == SENML_TYPE_DATA){
-        if(this->callback){
-            int decodedLen = base64_dec_len((char*)value, dataLength);
-            char decoded[decodedLen];
-            #ifdef ESP32
-                base64_decode_chars(value, dataLength, decoded);
-            #elif __MBED__
-                // todo: check result of function
-                size_t olen;
-                mbedtls_base64_decode((unsigned char*)decoded, decodedLen, &olen, (const unsigned char*)value, dataLength);
-            #else
-               base64_decode(decoded, (char*)value, dataLength); 
-            #endif 
+        int decodedLen = base64_dec_len((char*)value, dataLength);
+        char decoded[decodedLen];
+        #ifdef ESP32
+            base64_decode_chars((const char*)value, dataLength, decoded);
+        #elif __MBED__
+            // todo: check result of function
+            size_t olen;
+            mbedtls_base64_decode((unsigned char*)decoded, decodedLen, &olen, (const unsigned char*)value, dataLength);
+        #else
+            base64_decode(decoded, (char*)value, dataLength); 
+        #endif 
 
-            this->set((unsigned char*)decoded, decodedLen);
+        this->set((unsigned char*)decoded, decodedLen);
+        if(this->callback)
             this->callback((unsigned char*)decoded, decodedLen);
-        }
     }
     else if(dataType == CBOR_TYPE_DATA){
-        if(this->callback){
-            this->set((unsigned char*)value, dataLength);
+        this->set((unsigned char*)value, dataLength);
+        if(this->callback)
             this->callback((unsigned char*)value, dataLength);
-        }
     }
     else
-        log_debug("bin data type expected");
+        log_debug("invalid type");
 }
+
+
+
+
+
+
+

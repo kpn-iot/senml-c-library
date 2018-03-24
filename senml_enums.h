@@ -76,3 +76,9 @@ enum SenMLUnit {SENML_UNIT_NONE,
                 };
 
 #endif // !SENMLENUMS
+
+
+
+
+
+

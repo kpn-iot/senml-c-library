@@ -1,6 +1,7 @@
 #include <senml_float_record.h>
 #include <senml_helpers.h>
 #include <cbor.h>
+#include <senml_double_pack.h> 
 
 SenMLFloatRecord::SenMLFloatRecord(const char* name): SenMLRecordTemplate(name)
 {
@@ -10,16 +11,30 @@ SenMLFloatRecord::SenMLFloatRecord(const char* name, SenMLUnit unit): SenMLRecor
 {
 }
 
+float SenMLFloatRecord::getAdjustedValue()
+{
+    float adjustedValue = this->get();
+    if(_streamCtx->baseDataType == CBOR_TYPE_DOUBLE)
+        adjustedValue -= ((SenMLDoublePack*)this->getRoot())->getBaseValue();
+    return adjustedValue;
+}
+
 void SenMLFloatRecord::fieldsToJson()
 {
     SenMLRecord::fieldsToJson();
     printText(",\"v\":", 5);
-    printDouble(this->get(), 16);
+    printDouble(this->getAdjustedValue(), SENML_MAX_DOUBLE_PRECISION);
 }
 
 void SenMLFloatRecord::fieldsToCbor()
 {
     SenMLRecord::fieldsToCbor();
     cbor_serialize_int(SENML_CBOR_V_LABEL);
-    cbor_serialize_double(this->get());
+    cbor_serialize_double(this->getAdjustedValue());
 }
+
+
+
+
+
+

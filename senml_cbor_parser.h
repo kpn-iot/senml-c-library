@@ -12,30 +12,28 @@ enum SenMLCborDataType {};
 #define SENML_CBOR_KEY 1
 #define SENML_CBOR_VALUE 2
 
-//store the base value to be used
-typedef union BaseValue_t{
-    uint64_t baseUint;
-    int64_t baseInt;
-    double baseDouble;
-} BaseValue;
 
 class SenMLCborParser: public SenMLBaseParser {
 
   public:
-    SenMLCborParser(SenMLPack* root, Stream* source, SenMLStreamMethod format): SenMLBaseParser(root), state(0) 
+    SenMLCborParser(SenMLPack* root, SenMLStreamMethod format): SenMLBaseParser(root), state(0) 
     {
         this->ctx.format = format;
-        this->ctx.stream = source;
+        this->ctx.baseValue.baseUint = 0;               //init to 0, so we get correct results for first element as well.
+        this->ctx.baseSum.baseUint = 0;
+        _streamCtx = &this->ctx;                                     //set the global variable so that we don't have to pass it along on the stack all the time (saves mem & codesize)
     };
 
     //convert the cbor raw data into senml and actuate the records in the root pack.
-    void parse();
+    void parse(Stream* source);
+
+
+    void parse(char* source, int length);
 
 
   private:
     unsigned char state;                                            //keeps track of the current parse state
-    char curLabel;                                         //the cbor number that represents the current senml label (unit, value, boolvalue, basename,..). The next item to read has to be the value for the label
-    BaseValue baseValue;
+    int curLabel;                                         //the cbor number that represents the current senml label (unit, value, boolvalue, basename,..). The next item to read has to be the value for the label
     StreamContext ctx;
 
     unsigned int parseNext();
@@ -44,9 +42,9 @@ class SenMLCborParser: public SenMLBaseParser {
     void setBinaryValue(const char* value, int length);
     void processDouble(double value);
 
+    void internalParse();
 
-
-    inline unsigned int processArray()
+    unsigned int processArray()
     {
         const bool is_indefinite = (peekChar() == (CBOR_ARRAY | CBOR_VAR_FOLLOWS));
         uint64_t array_length = 0;
@@ -101,7 +99,7 @@ class SenMLCborParser: public SenMLBaseParser {
             ++i;
         }
         this->state = curState;                                     //reset to the original state. was changed inside loop
-        this->baseValue.baseUint = 0;                                        //if there was a base value, reset it for the next run.
+        this->ctx.baseValue.baseUint = 0;                                        //if there was a base value, reset it for the next run.
         return read_bytes;
     };
 
@@ -112,16 +110,15 @@ class SenMLCborParser: public SenMLBaseParser {
         if(this->state == SENML_CBOR_VALUE){
             switch (this->curLabel)
             {
-                case SENML_CBOR_BV_LABEL: this->baseValue.baseUint = val; break;
+                case SENML_CBOR_BV_LABEL: this->ctx.baseValue.baseUint = val; break;
                 case SENML_CBOR_V_LABEL: 
-                    uint64_t calculated = this->baseValue.baseUint + val;
+                    uint64_t calculated = this->ctx.baseValue.baseUint + val;
                     this->setValue((void*)&calculated, sizeof(uint64_t), CBOR_TYPE_UINT); 
                     break;
             }
         }
         else if(this->state == SENML_CBOR_KEY)             //store the value type (basename, baseunit, value, stringvalue,...)
-            this->curLabel = (char)val;
-        
+            this->curLabel = (int)val;
         return read_bytes; 
     };
 
@@ -132,9 +129,9 @@ class SenMLCborParser: public SenMLBaseParser {
         if(this->state == SENML_CBOR_VALUE){
             switch (this->curLabel)
             {
-                case SENML_CBOR_BV_LABEL: this->baseValue.baseInt = val; break;
+                case SENML_CBOR_BV_LABEL: this->ctx.baseValue.baseInt = val; break;
                 case SENML_CBOR_V_LABEL: 
-                uint64_t calculated = this->baseValue.baseInt + val;
+                uint64_t calculated = this->ctx.baseValue.baseInt + val;
                     this->setValue((void*)&calculated, sizeof(int64_t), CBOR_TYPE_INT); 
                     break;
             }
@@ -144,7 +141,7 @@ class SenMLCborParser: public SenMLBaseParser {
         return read_bytes; 
     };
 
-    inline unsigned int processBytes(SenMLDataType type)
+    unsigned int processBytes(SenMLDataType type)
     {
         uint64_t bytes_length;                              //needs to be this big for decode_int
         size_t bytes_read = decode_int(&bytes_length);
@@ -181,8 +178,14 @@ class SenMLCborParser: public SenMLBaseParser {
                      break;
             }
         }
-        return bytes_read;
+        return bytes_read + bytes_length;
     };
 };
 
 #endif // SENMLCBORPARSER
+
+
+
+
+
+

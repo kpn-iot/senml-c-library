@@ -7,7 +7,7 @@ void SenMLBaseParser::setCurrentPack(String& name)
     this->curPackName = name;                                               //need a ref to the name in case we can't find the pack object
 
     if(name == this->root->getBaseName()){                                  //check the root first, most common probably
-        this->curPack == this->root;
+        this->curPack = this->root;
         return;
     }
     SenMLBase* found = this->root->getFirst();
@@ -41,3 +41,9 @@ void SenMLBaseParser::setCurrentRecord(String& name)
         }
     }
 }
+
+
+
+
+
+

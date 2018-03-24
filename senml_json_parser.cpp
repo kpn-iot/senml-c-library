@@ -61,28 +61,42 @@ void SenMLJsonListener::key(String key) {
 }
 
 void SenMLJsonListener::value(String value) {
-    //Serial.println("value: " + value);
+    double dblVal;
+    bool boolVal;
     switch (this->expected)
     {
         case BV_VALUE: this->baseValue = atof(value.c_str());
         case BN_VALUE: this->setCurrentPack(value); break;
         case BU_VALUE: this->checkBaseUnit(value); break;
         case N_VALUE: this->setCurrentRecord(value); break;
-        case V_VALUE: this->setValue(value, SENML_TYPE_NR); break;
-        case VB_VALUE: this->setValue(value, SENML_TYPE_BOOL); break;
-        case VD_VALUE: this->setValue(value, SENML_TYPE_DATA); break;
-        case VS_VALUE: this->setValue(value, SENML_TYPE_STRING); break;
+        case V_VALUE: 
+            dblVal = atof(value.c_str()) + this->baseValue;
+            this->setValue(&dblVal, sizeof(double), SENML_TYPE_NR); 
+            break;
+        case VB_VALUE: 
+            boolVal = strcmp(value.c_str(), "true") == 0;
+            this->setValue(&boolVal, sizeof(bool), SENML_TYPE_BOOL); 
+            break;
+        case VD_VALUE: this->setValue(value.c_str(), value.length(), SENML_TYPE_DATA); break;
+        case VS_VALUE: this->setValue(value.c_str(), value.length(), SENML_TYPE_STRING); break;
   }
 }
 
-void SenMLJsonListener::endObject() {
-    this->baseValue = 0;
+void SenMLJsonListener::setValue(const void* value, int length, SenMLDataType dataType)
+{
+    if(this->curRec){
+        this->curRec->actuate(value, length, dataType);
+    }
+    else {
+        SenMLPack* pack = this->curPack;
+        if(!pack)
+            pack = this->root;
+        if(pack)
+            pack->actuate(this->curPackName.c_str(), this->curRecName.c_str(), value, length, dataType);
+    }
 }
 
 /*
-void SenMLJsonListener::whitespace(char c) {
-    Serial.println("whitespace");
-}
 
 void SenMLJsonListener::startDocument() {
     Serial.println("start document");
@@ -106,16 +120,7 @@ void SenMLJsonListener::startObject() {
 */
 
 
-void SenMLJsonListener::setValue(String& value, SenMLDataType dataType)
-{
-    if(this->curRec){
-        this->curRec->actuate(value.c_str(), value.length(), dataType);
-    }
-    else {
-        SenMLPack* pack = this->curPack;
-        if(!pack)
-            pack = this->root;
-        if(pack)
-            pack->actuate(this->curPackName.c_str(), this->curRecName.c_str(), value.c_str(), value.length(), dataType);
-    }
-}
+
+
+
+

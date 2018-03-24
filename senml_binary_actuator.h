@@ -16,14 +16,15 @@ public:
 protected:
 
     //called while parsing a senml message, when the parser found the value for an SenMLJsonListener
-    virtual void actuate(const char* value, int dataLength, SenMLDataType dataType);
+    virtual void actuate(const void* value, int dataLength, SenMLDataType dataType);
 
     //called while parsing a senml message, when the parser found the value for an SenMLJsonListener
     //the actual value has already been converted to it's appropriate type
     inline void actuate(const char* value, int length)
     {
         this->set((unsigned char*)value, length);
-        this->callback((unsigned char*)value, length);
+        if(this->callback)
+            this->callback((unsigned char*)value, length);
     };
 
 private:
@@ -31,3 +32,9 @@ private:
 };
 
 #endif // SENMLBINARYACTUATOR
+
+
+
+
+
+

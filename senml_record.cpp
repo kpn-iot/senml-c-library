@@ -27,16 +27,6 @@ bool SenMLRecord::setTime(double value, bool absolute)
     return true;
 }
 
-void SenMLRecord::toJson(Stream *dest, SenMLStreamMethod format)
-{
-    StreamContext renderTo;                                              //set up the global record that configures the rendering. This saves us some bytes on the stack and in code by not having to pass along the values as function arguments.
-    renderTo.stream = dest;
-    renderTo.format = format; 
-    _streamCtx = &renderTo;
-
-    contentToJson();
-}
-
 void SenMLRecord::contentToJson()
 {
     printText("{", 1);
@@ -59,7 +49,7 @@ void SenMLRecord::fieldsToJson()
     printText("\"", 1);
     if(!isnan(this->_time)){
         printText(",\"t\":", 5);
-        printDouble(this->_time, 16);
+        printDouble(this->_time, SENML_MAX_DOUBLE_PRECISION);
     }
     if(this->_unit != SENML_UNIT_NONE){
         printText(",\"u\":\"", 6);
@@ -79,20 +69,10 @@ void SenMLRecord::fieldsToJson()
     }
 }
 
-void SenMLRecord::actuate(const char* value, int dataLength, SenMLDataType dataType)
+void SenMLRecord::actuate(const void* value, int dataLength, SenMLDataType dataType)
 {
     log_debug(this->getName());
     log_debug("no actuator");
-}
-
-void SenMLRecord::toCbor(Stream *dest, SenMLStreamMethod format)
-{
-    StreamContext renderTo;                                              //set up the global record that configures the rendering. This saves us some bytes on the stack and in code by not having to pass along the values as function arguments.
-    renderTo.stream = dest;
-    renderTo.format = format;
-    _streamCtx = &renderTo;
-
-    this->contentToCbor();
 }
 
 void SenMLRecord::contentToCbor()
@@ -127,3 +107,9 @@ void SenMLRecord::fieldsToCbor()
         cbor_serialize_int(this->_updateTime);
     }
 }
+
+
+
+
+
+

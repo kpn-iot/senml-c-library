@@ -20,18 +20,24 @@ class SenMLIntPack: public SenMLPackTemplate<int>
 
         ~SenMLIntPack(){};
 
+
     protected:
 
-        //when a base value is defined, this function is used by the records to try and
-        //adjust their value before writing it to the stream.
-        //pack objects from a template override this so they can adjust values.
-        virtual void adjustForBaseValue(void* value, SenMLDataType dataType);
+        virtual void setupStreamCtx(Stream *dest, SenMLStreamMethod format);
+        virtual void setupStreamCtx(char *dest, int length, SenMLStreamMethod format);
 
         virtual void fieldsToJson();
 
         virtual void fieldsToCbor();
 
     private:
+        int getAdjustedValue();
 };
 
 #endif // SENMLINTPACK
+
+
+
+
+
+

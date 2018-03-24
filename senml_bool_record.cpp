@@ -26,3 +26,9 @@ void SenMLBoolRecord::fieldsToCbor()
     cbor_serialize_int(SENML_CBOR_VB_LABEL);
     cbor_serialize_bool(this->get());
 }
+
+
+
+
+
+

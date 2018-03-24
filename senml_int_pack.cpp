@@ -3,15 +3,21 @@
 #include <senml_helpers.h>
 #include <cbor.h>
  
-void SenMLIntPack::adjustForBaseValue(void* value, SenMLDataType dataType)
+
+void SenMLIntPack::setupStreamCtx(Stream *dest, SenMLStreamMethod format)
 {
-    switch (dataType)
-    {
-        case CBOR_TYPE_UINT:   *((uint64_t*)value) -= this->getBaseValue(); break;
-        case CBOR_TYPE_INT:    *((int64_t*)value) -= this->getBaseValue();  break;
-        case CBOR_TYPE_FLOAT:  *((float*)value) -= this->getBaseValue();    break;
-        case CBOR_TYPE_DOUBLE: *((double*)value) -= this->getBaseValue();   break;
-    }
+    SenMLPack::setupStreamCtx(dest, format);
+    _streamCtx->baseValue.baseInt = this->getBaseValue();
+    _streamCtx->baseSum.baseInt = this->getBaseValue();
+    _streamCtx->baseDataType = CBOR_TYPE_INT;
+}
+
+void SenMLIntPack::setupStreamCtx(char *dest, int length, SenMLStreamMethod format)
+{
+    SenMLPack::setupStreamCtx(dest, length, format);
+    _streamCtx->baseValue.baseInt = this->getBaseValue();
+    _streamCtx->baseSum.baseInt = this->getBaseValue();
+    _streamCtx->baseDataType = CBOR_TYPE_INT;
 }
 
 void SenMLIntPack::fieldsToJson() 
@@ -52,3 +58,9 @@ void SenMLIntPack::fieldsToCbor()
         cbor_serialize_int(val);
     }
 }
+
+
+
+
+
+

@@ -21,12 +21,6 @@ public:
     SenMLBase();
     ~SenMLBase();
 
-    //render the content of the senml object to the specified stream. This will produce a json string
-    virtual void toJson(Stream *dest, SenMLStreamMethod format=SENML_RAW) = 0;
-
-    //render the content of the senml object to the specified stream. This will produce a binary data blob
-    virtual void toCbor(Stream *dest, SenMLStreamMethod format=SENML_RAW) = 0;
-
     //get the next item in the list
     SenMLBase* getNext(){ return this->_next; };
 
@@ -63,8 +57,7 @@ protected:
 
     //assign the element in the list that this object points to.
     void setNext(SenMLBase* value);
-    //SenMLPack overrides this function cause it keeps track of the last item in the list
-    virtual void setLast(SenMLBase* value){};
+    
     //assign the previous element in the list that thisobject points to.
     void setPrev(SenMLBase* value);
     //assign the previous element in the list that thisobject points to.
@@ -95,3 +88,9 @@ private:
 
 
 #endif // SENMLBASE
+
+
+
+
+
+

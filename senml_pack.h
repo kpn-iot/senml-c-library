@@ -17,6 +17,7 @@ class SenMLPack: public SenMLBase
 {
     friend class SenMLJsonListener; 
     friend class SenMLCborParser;
+    friend class SenMLBase;
     public:
         SenMLPack(const char* baseName):  _bn(baseName),                                                    //mbed compiler doesnt support delegating constructors
                                           _bu(SENML_UNIT_NONE), 
@@ -54,7 +55,9 @@ class SenMLPack: public SenMLBase
         ~SenMLPack(){};
 
         //render the content of the current object to json data (string)
-        virtual void toJson(Stream* dest, SenMLStreamMethod format=SENML_RAW);
+        void toJson(Stream* dest, SenMLStreamMethod format=SENML_RAW);
+
+        void toJson(char *dest, int length, SenMLStreamMethod format=SENML_RAW);
 
         //read a senml json string from the specified source and, for each registered actuator, call the
         //appropriate event.
@@ -65,10 +68,13 @@ class SenMLPack: public SenMLBase
         //Takes a string as input
         void fromJson(const char* source);
 
-        void fromCbor(Stream* source, SenMLStreamMethod format);
-        void fromCbor(const unsigned char* source);
+        void fromCbor(Stream* source, SenMLStreamMethod format=SENML_RAW);
+        
+        void fromCbor(char* source, int length, SenMLStreamMethod format);
 
-        virtual void toCbor(Stream* dest, SenMLStreamMethod format);
+        void toCbor(Stream* dest, SenMLStreamMethod format=SENML_RAW);
+
+        void toCbor(char *dest, int length, SenMLStreamMethod format=SENML_RAW);
 
         void setBaseName(const char* name);
         const char* getBaseName();
@@ -83,6 +89,9 @@ class SenMLPack: public SenMLBase
         //get the first recrod of in this pack element.
         inline SenMLBase* getFirst() { return this->_start; };
 
+
+    protected:
+
         /*
         renders all the fields to json, without the starting and ending brackets.
         Inheriters can extend this function if they want to add extra fields to the json output
@@ -90,9 +99,6 @@ class SenMLPack: public SenMLBase
         virtual void fieldsToJson();
 
         virtual void fieldsToCbor();
-
-    protected:
-
 
         //derived classes can use this function to see if the root object (getRoot) is a SenMLPack
         //class or not.
@@ -106,7 +112,7 @@ class SenMLPack: public SenMLBase
         };
 
         //store a ref to the last item in the list for quick link operations
-        virtual void setLast(SenMLBase* value);
+        void setLast(SenMLBase* value);
 
         //renders the content of the pack object without []
         virtual void contentToCbor();    
@@ -116,10 +122,9 @@ class SenMLPack: public SenMLBase
         //this is used for rendering cbor which needs to declare the nr of elements in an array.
         virtual int getArrayLength();
 
-        //when a base value is defined, this function is used by the records to try and
-        //adjust their value before writing it to the stream.
-        //pack objects from a template override this so they can adjust values.
-        virtual void adjustForBaseValue(void* value, SenMLDataType dataType) {};
+        virtual void setupStreamCtx(char *dest, int length, SenMLStreamMethod format);
+
+        virtual void setupStreamCtx(Stream *dest, SenMLStreamMethod format);
 
     private:
         String _bn;
@@ -135,6 +140,9 @@ class SenMLPack: public SenMLBase
 
         //calculates the nr of json fields that this object uses in a senml structure
         virtual int getFieldLength();
+
+
+        void internalToJson();
 
         inline char readHexChar(Stream *source){
             #ifdef __MBED__
@@ -152,3 +160,10 @@ class SenMLPack: public SenMLBase
 
 
 #endif // SENMLPACK
+
+
+
+
+
+
+

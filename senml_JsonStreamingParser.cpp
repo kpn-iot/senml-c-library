@@ -181,7 +181,7 @@ void JsonStreamingParser::parse(char c) {
       }
       break;
     case STATE_START_DOCUMENT:
-      myListener->startDocument();
+      //myListener->startDocument();
       if (c == '[') {
         startArray();
       } else if (c == '{') {
@@ -262,7 +262,7 @@ void JsonStreamingParser::endArray() {
       // throw new ParsingError($this->_line_number, $this->_char_number,
       // "Unexpected end of array encountered.");
     }
-    myListener->endArray();
+    //myListener->endArray();
     state = STATE_AFTER_VALUE;
     if (stackPos == 0) {
       endDocument();
@@ -282,7 +282,7 @@ void JsonStreamingParser::endObject() {
       // throw new ParsingError($this->_line_number, $this->_char_number,
       // "Unexpected end of object encountered.");
     }
-    myListener->endObject();
+    //myListener->endObject();
     state = STATE_AFTER_VALUE;
     if (stackPos == 0) {
       endDocument();
@@ -428,7 +428,7 @@ int JsonStreamingParser::convertDecimalBufferToInt(char myArray[], int length) {
   }
 
 void JsonStreamingParser::endDocument() {
-    myListener->endDocument();
+    //myListener->endDocument();
     state = STATE_DONE;
   }
 
@@ -472,14 +472,14 @@ void JsonStreamingParser::endNull() {
   }
 
 void JsonStreamingParser::startArray() {
-    myListener->startArray();
+    //myListener->startArray();
     state = STATE_IN_ARRAY;
     stack[stackPos] = STACK_ARRAY;
     stackPos++;
   }
 
 void JsonStreamingParser::startObject() {
-    myListener->startObject();
+    //myListener->startObject();
     state = STATE_IN_OBJECT;
     stack[stackPos] = STACK_OBJECT;
     stackPos++;
@@ -515,3 +515,10 @@ char JsonStreamingParser::convertCodepointToCharacter(int num) {
     // chr((num>>18)+240).chr(((num>>12)&63)+128).chr(((num>>6)&63)+128).chr((num&63)+128);
     return ' ';
   }
+
+
+
+
+
+
+

@@ -22,6 +22,13 @@ public:
 protected:
 
 private:
+    float getAdjustedValue();
 };
 
 #endif // SENMLFLOATRECORD
+
+
+
+
+
+

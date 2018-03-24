@@ -19,7 +19,7 @@ SenMLBase::~SenMLBase()
 void SenMLBase::setNext(SenMLBase* value)
 {
     if(value == NULL){                                              //if next becomes null and there is a root, then this object became the last in the list, so let the root know.
-        SenMLBase* root = this->getRoot();
+        SenMLPack* root = (SenMLPack*)this->getRoot();
         if(root)
             root->setLast(this);
     }
@@ -48,3 +48,10 @@ SenMLBase* SenMLBase::getRoot()
     }
     return this;                                    //if there was no first prev, it means we are root.
 }
+
+
+
+
+
+
+

@@ -185,3 +185,9 @@ size_t cbor_deserialize_float(float *val);
 size_t cbor_deserialize_double(double *val);
 
 #endif // SENMLCBOR
+
+
+
+
+
+

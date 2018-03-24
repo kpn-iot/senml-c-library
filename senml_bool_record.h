@@ -26,3 +26,9 @@ private:
 };
 
 #endif // SENMLBOOLRECORD
+
+
+
+
+
+

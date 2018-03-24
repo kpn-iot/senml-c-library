@@ -16,10 +16,16 @@ public:
 protected:
 
     //called while parsing a senml message, when the parser found the value for an SenMLJsonListener
-    virtual void actuate(const char* value, int dataLength, SenMLDataType dataType);
+    virtual void actuate(const void* value, int dataLength, SenMLDataType dataType);
 
 private:
     STRING_ACTUATOR_SIGNATURE;
 };
 
 #endif // SENMLSTRINGACTUATOR
+
+
+
+
+
+

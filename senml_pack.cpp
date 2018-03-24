@@ -51,7 +51,7 @@ void SenMLPack::setLast(SenMLBase* value)
 bool SenMLPack::add(SenMLBase* item)
 {
     if(item->getNext() != NULL){
-        log_debug("item already added to list");
+        log_debug("already in list");
         return false;
     }
 
@@ -133,18 +133,36 @@ void SenMLPack::fromJson(const char *source)
 
 void SenMLPack::fromCbor(Stream* source, SenMLStreamMethod format)
 {
-    SenMLCborParser parser(this, source, format);
-    parser.parse();
+    SenMLCborParser parser(this, format);
+    parser.parse(source);
+}
+
+void SenMLPack::fromCbor(char* source, int length, SenMLStreamMethod format)
+{
+    SenMLCborParser parser(this, format);
+    parser.parse(source, length);
 }
 
 
 void SenMLPack::toJson(Stream *dest, SenMLStreamMethod format)
 {
     StreamContext renderTo;                                              //set up the global record that configures the rendering. This saves us some bytes on the stack and in code by not having to pass along the values as function arguments.
-    renderTo.stream = dest;
-    renderTo.format = format;
     _streamCtx = &renderTo;
+    this->setupStreamCtx(dest, format);
+    this->internalToJson();
+}
 
+void SenMLPack::toJson(char *dest, int length, SenMLStreamMethod format)
+{
+    StreamContext renderTo;                                              //set up the global record that configures the rendering. This saves us some bytes on the stack and in code by not having to pass along the values as function arguments.
+    _streamCtx = &renderTo;
+    this->setupStreamCtx(dest, length, format);
+    this->internalToJson();
+}
+
+//render the content of the current object to json data (string)
+void SenMLPack::internalToJson()
+{
     printText("[", 1);
     this->contentToJson();
     printText("]", 1);
@@ -163,7 +181,7 @@ void SenMLPack::fieldsToJson()
     }
     if(!isnan(this->_bt)){
         printText(",\"bt\":", 6);
-        printDouble(this->_bt, 16);
+        printDouble(this->_bt, SENML_MAX_DOUBLE_PRECISION);
     }
 }
 
@@ -186,17 +204,46 @@ void SenMLPack::contentToJson()
 }
 
 
+
+void SenMLPack::setupStreamCtx(char *dest, int length, SenMLStreamMethod format)
+{
+    _streamCtx->data.blob.data = dest;
+    _streamCtx->data.blob.length = length;
+    _streamCtx->data.blob.curPos = 0;
+    _streamCtx->dataAsBlob = true;
+    _streamCtx->format = format;
+    _streamCtx->baseValue.baseUint = 0;                                    //by default, there is no base value or sum
+    _streamCtx->baseSum.baseUint = 0;
+    _streamCtx->baseDataType = CBOR_TYPE_DATA;                             //data never adjusts for basevalue, so this is safe.
+}
+
+void SenMLPack::setupStreamCtx(Stream *dest, SenMLStreamMethod format)
+{
+    _streamCtx->data.stream = dest;
+    _streamCtx->format = format;
+    _streamCtx->dataAsBlob = false;
+    _streamCtx->baseValue.baseUint = 0;                                    //by default, there is no base value or sum
+    _streamCtx->baseSum.baseUint = 0;
+    _streamCtx->baseDataType = CBOR_TYPE_DATA;                             //data never adjusts for basevalue, so this is safe.
+}
+
 void SenMLPack::toCbor(Stream *dest, SenMLStreamMethod format)
 {
     StreamContext renderTo;                                              //set up the global record that configures the rendering. This saves us some bytes on the stack and in code by not having to pass along the values as function arguments.
-    renderTo.stream = dest;
-    renderTo.format = format;
     _streamCtx = &renderTo;
-
+    this->setupStreamCtx(dest, format);
     cbor_serialize_array(this->getArrayLength());
     this->contentToCbor();
 }
 
+void SenMLPack::toCbor(char *dest, int length, SenMLStreamMethod format)
+{
+    StreamContext renderTo;                                              //set up the global record that configures the rendering. This saves us some bytes on the stack and in code by not having to pass along the values as function arguments.
+    _streamCtx = &renderTo;
+    this->setupStreamCtx(dest, length, format);
+    cbor_serialize_array(this->getArrayLength());
+    this->contentToCbor();
+}
 
 void SenMLPack::contentToCbor()
 {
@@ -259,3 +306,9 @@ void SenMLPack::fieldsToCbor()
         cbor_serialize_double(this->_bt);
     }
 }
+
+
+
+
+
+

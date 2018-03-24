@@ -19,9 +19,6 @@ public:
     SenMLRecord(const char* name, SenMLUnit unit);
    // ~SenMLRecord(){};
 
-    virtual void toJson(Stream *dest, SenMLStreamMethod format=SENML_RAW);
-
-    virtual void toCbor(Stream *dest, SenMLStreamMethod format=SENML_RAW);
 
     //returns the time assigned to this record.
     //note: the time is relative compared to the parent pack object.
@@ -71,7 +68,7 @@ protected:
     
 
     //called while parsing a senml message, when the parser found the value for an SenMLJsonListener
-    virtual void actuate(const char* value, int dataLength, SenMLDataType dataType);
+    virtual void actuate(const void* value, int dataLength, SenMLDataType dataType);
 
     //calculates the nr of fields that this record will produce.
     //The default implementation already adds 1 field for the value.
@@ -87,3 +84,9 @@ private:
 };
 
 #endif // SENMLRECORD
+
+
+
+
+
+

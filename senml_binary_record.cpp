@@ -33,3 +33,9 @@ void SenMLBinaryRecord::fieldsToCbor()
     cbor_serialize_int(SENML_CBOR_VD_LABEL);
     cbor_serialize_byte_string((const char*)this->_value, this->_length);
 }
+
+
+
+
+
+

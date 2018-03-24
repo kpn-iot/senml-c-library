@@ -12,15 +12,14 @@ class SenMLJsonListener: public JsonListener, SenMLBaseParser {
 
     virtual void key(String key);
     virtual void value(String value);
-    virtual void endObject();
+    //virtual void endObject(){};
 
     //the following need to be implemented cause they are abstract in the base class.
-    virtual void whitespace(char c){};
-    virtual void startDocument(){};
-    virtual void endArray(){};
-    virtual void endDocument(){};
-    virtual void startArray(){};
-    virtual void startObject(){};
+    //virtual void startDocument(){};
+    //virtual void endArray(){};
+    //virtual void endDocument(){};
+    //virtual void startArray(){};
+    //virtual void startObject(){};
 
 
 
@@ -28,7 +27,13 @@ class SenMLJsonListener: public JsonListener, SenMLBaseParser {
     int expected;               //name of key who's value is expected next
     double baseValue;           //if the current pack defined a base value, add it to all values that we find
 
-    void setValue(String& value, SenMLDataType dataType);
+    void setValue(const void* value, int length, SenMLDataType dataType);
 };
 
 #endif // SENMLSenMLJsonListener
+
+
+
+
+
+

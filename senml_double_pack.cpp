@@ -3,14 +3,21 @@
 #include <senml_helpers.h>
 #include <cbor.h> 
 
-void SenMLDoublePack::adjustForBaseValue(void* value, SenMLDataType dataType)
+
+void SenMLDoublePack::setupStreamCtx(Stream *dest, SenMLStreamMethod format)
 {
-    //note: a pack that contains doubles can't adjust the values of int records cause then the value can't be composed correctly again.
-    switch (dataType)
-    {
-        case CBOR_TYPE_FLOAT:  *((float*)value) -= this->getBaseValue();    break;
-        case CBOR_TYPE_DOUBLE: *((double*)value) -= this->getBaseValue();   break;
-    }
+    SenMLPack::setupStreamCtx(dest, format);
+    _streamCtx->baseValue.baseDouble = this->getBaseValue();
+    _streamCtx->baseSum.baseDouble = this->getBaseValue();
+    _streamCtx->baseDataType = CBOR_TYPE_DOUBLE;
+}
+
+void SenMLDoublePack::setupStreamCtx(char *dest, int length, SenMLStreamMethod format)
+{
+    SenMLPack::setupStreamCtx(dest, length, format);
+    _streamCtx->baseValue.baseDouble = this->getBaseValue();
+    _streamCtx->baseSum.baseDouble = this->getBaseValue();
+    _streamCtx->baseDataType = CBOR_TYPE_DOUBLE;
 }
 
 void SenMLDoublePack::fieldsToJson() 
@@ -20,13 +27,13 @@ void SenMLDoublePack::fieldsToJson()
     val = this->getBaseValue();
     if(val != 0){
         printText(",\"bv\":", 6);
-        printDouble(val, 16);
+        printDouble(val, SENML_MAX_DOUBLE_PRECISION);
     }
 
     val = this->getBaseSum();
     if(val != 0){
         printText(",\"bs\":", 6);
-        printDouble(val, 16);
+        printDouble(val, SENML_MAX_DOUBLE_PRECISION);
     }
 
 }
@@ -48,3 +55,9 @@ void SenMLDoublePack::fieldsToCbor()
         cbor_serialize_double(val);
     }
 }
+
+
+
+
+
+

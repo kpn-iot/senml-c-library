@@ -30,7 +30,7 @@
 /**
  * Convert float @p x to host format
  */
-static float ntohf(uint32_t x)
+inline float ntohf(uint32_t x)
 {
     union u {
         float f;
@@ -54,13 +54,36 @@ static uint64_t htond(double x)
 /**
  * Convert double @p x to host format
  */
-static double ntohd(uint64_t x)
+inline double ntohd(uint64_t x)
 {
     union u {
         double d;
         uint64_t i;
     } u = { .i = htonll(x) };
     return u.d;
+}
+
+inline float ntohd_avr(uint64_t x)
+{
+    union u {
+        unsigned char dn[8];
+        uint64_t i;
+    } u = { .i = htonll(x) };
+
+
+   union {
+       float f;
+       unsigned char b[4];
+       uint32_t ui;
+   } fn;    
+   int expd = ((u.dn[7] & 127) << 4) + ((u.dn[6] & 240) >> 4);
+   int expf = expd ? (expd - 1024) + 128 : 0;
+   
+   fn.b[3] = (u.dn[7] & 128) + (expf >> 1);
+   fn.b[2] = ((expf & 1) << 7) + ((u.dn[6] & 15) << 3) + ((u.dn[5] & 0xe0) >> 5);
+   fn.b[1] = ((u.dn[5] & 0x1f) << 3) + ((u.dn[4] & 0xe0) >> 5);
+   fn.b[0] = ((u.dn[4] & 0x1f) << 3) + ((u.dn[3] & 0xe0) >> 5);
+  return fn.f;
 }
 
 /**
@@ -139,7 +162,7 @@ static size_t encode_int(unsigned char major_type, uint64_t val)
     return bytes_follow + 1;
 }
 
-size_t p(uint64_t *val)
+size_t decode_int(uint64_t *val)
 {
 
     *val = 0; /* clear val first */
@@ -180,7 +203,7 @@ size_t p(uint64_t *val)
 
 static size_t encode_bytes(unsigned char major_type, const char *data, size_t length)
 {
-    size_t length_field_size = uint_bytes_follow(uint_additional_info(length)) + 1;
+    uint_bytes_follow(uint_additional_info(length)) + 1;
     size_t bytes_start = encode_int(major_type, (uint64_t) length);
 
     if (!bytes_start) {
@@ -264,6 +287,7 @@ size_t cbor_deserialize_float(float *val)
     return 0;
 }
 
+
 size_t cbor_deserialize_double(double *val)
 {
     if (CBOR_TYPE != CBOR_7 || !val) {
@@ -275,7 +299,14 @@ size_t cbor_deserialize_double(double *val)
     if (dataType == CBOR_FLOAT64) {
         uint64_t data;
         readChars((unsigned char*)&data, 8);
-        *val = ntohd(data);
+        if(sizeof(double) == 8)                                 //this is the default on most systems
+        {
+            *val = ntohd(data);
+        }
+        else if(sizeof(double) == 4)                            //8 bit processors such as avr don't support 8 byte floating point values, only 4 bytes, so need special conversion
+        {
+            *val = ntohd_avr(data);
+        }
         return 9;
     }
 
@@ -318,4 +349,11 @@ size_t cbor_serialize_byte_string(const char *val, int length)
 {
     return encode_bytes(CBOR_BYTES, val, length);
 }
+
+
+
+
+
+
+
 
