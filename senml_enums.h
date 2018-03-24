@@ -75,6 +75,37 @@ enum SenMLUnit {SENML_UNIT_NONE,
                 SENML_UNIT_SIEMENS_PER_METER
                 };
 
+
+#define KPN_SENML_PRESSURE "pressure"
+#define KPN_SENML_ANGLE "angle"
+#define KPN_SENML_LENGHT "lenght"
+#define KPN_SENML_BREADTH "breadth"
+#define KPN_SENML_HEIGHT "height"
+#define KPN_SENML_WEIGHT "weight"
+#define KPN_SENML_THICKNESS "thickness"
+#define KPN_SENML_DISTANCE "distance"
+#define KPN_SENML_AREA "area"
+#define KPN_SENML_VOLUME "volume"
+#define KPN_SENML_VELOCITY "velocity"
+#define KPN_SENML_ELECTRICCURRENT "electricCurrent"
+#define KPN_SENML_ELECTRICPOTENTIAL "electricPotential"
+#define KPN_SENML_ELECTRICRESISTANCE "electricResistance"
+#define KPN_SENML_TEMPERATURE "temperature"
+#define KPN_SENML_ILLUMINANCE "illuminance"
+#define KPN_SENML_ALTITUDE "altitude"
+#define KPN_SENML_ACCELERATIONX "accelerationX"
+#define KPN_SENML_ACCELERATIONY "accelerationY"
+#define KPN_SENML_ACCELERATIONZ "accelerationZ"
+#define KPN_SENML_HEADING "heading"
+#define KPN_SENML_LONGITUDE "longitude"
+#define KPN_SENML_LATTITUDE "lattitude"
+#define KPN_SENML_CARBONMONOXIDE "carbonMonoxide"
+#define KPN_SENML_CARBONDIOXIDE "carbonDioxide"
+#define KPN_SENML_SOUND "sound"
+#define KPN_SENML_FREQUENCY "frequency"
+#define KPN_SENML_BATTERYLEVEL "batteryLevel"
+#define KPN_SENML_HUMIDITY "humidity"
+
 #endif // !SENMLENUMS
 
 
