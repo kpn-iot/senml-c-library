@@ -15,13 +15,21 @@ SenMLRecord::SenMLRecord(const char* name, SenMLUnit unit): _name(name), _unit(u
 
 bool SenMLRecord::setTime(double value, bool absolute)
 {
+    SenMLBase* root = this->getRoot();
     if(absolute){
-        SenMLBase* root = this->getRoot();
-        if(root && root->isPack()){
-            double baseTime = ((SenMLPack*)root)->getBaseTime();
-            if(!isnan(baseTime))
-                value -= baseTime;
+        if(root){
+            if(root->isPack()){
+                double baseTime = ((SenMLPack*)root)->getBaseTime();
+                if(!isnan(baseTime))
+                    value -= baseTime;
+            }
+            else{
+                return false;
+            }
         }
+    }
+    else if(root == null){
+        return false;
     }
     this->_time = value;
     return true;
