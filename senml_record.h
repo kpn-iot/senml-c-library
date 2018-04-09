@@ -11,76 +11,148 @@
     #define String string
 #endif
 
+/**
+ * SenMLRecord represents a single measurement. Besides the value, it also stores the name, 
+ * optional unit, timestamp and update time.
+ * 
+ * This is the base class for all record types, you can not work directly with this class.
+ * Instead, use one of it's derivatives such as SenMLBinaryRecord, SenMLBoolRecord, SenMLFloatRecord,
+ * SenMLIntRecord or SenMLStringRecord. Alternatively, you can create your own records by inheriting from
+ * this class, or SenMLRecordTemplate, a convenience template which allows you to create records for 
+ * different data types.
+ * 
+ * Although a record object can be used by itself, usually record objects are added to SenMLPack objects.
+ */ 
 class SenMLRecord: public SenMLBase
 {
-friend class SenMLCborParser;
-public:
-    SenMLRecord(const char* name);
-    SenMLRecord(const char* name, SenMLUnit unit);
-   // ~SenMLRecord(){};
-
-
-    //returns the time assigned to this record.
-    //note: the time is relative compared to the parent pack object.
-    double getTime() {return this->_time;};
-
-    //set the time. This has to be a unix epoch time.
-    //when absolute is true (default behaviour), the time value will be made relative to the base time of the pack object, if it has a base time.
-    bool setTime(double value, bool absolute = true);
-
-    
-    inline const char* getName(){ return this->_name.c_str();}
-
-    inline void setName(const char* name){ this->_name = name; }
-
-    
-
-    inline int getUpdateTime(){ return this->_updateTime;}
-
-    inline void setName(int value){ this->_updateTime = value; }
-
-
-
-    SenMLUnit getUnit(){ return this->_unit;}
-
-    void setUnit(SenMLUnit value){ this->_unit = value; }
-
-    //This function is called by the root SenMLPack object to indicate that the object
-    //should adjust it's time info relative to the new base time (if applicable)
-    //doesn't do anything by default
-    virtual void adjustToBaseTime(double prev, double time);
-
-    /*
-    renders all the fields to json, without the starting and ending brackets.
-    Inheriters can extend this function if they want to add extra fields to the json output
-    */
-    virtual void fieldsToJson();
-
-    virtual void contentToCbor();
-
-
-    //renders all the fields to cbor format. renders all the fields of the object without the {}
-    void fieldsToCbor();
-
-protected:
-
-    virtual void contentToJson();
-    
-
-    //called while parsing a senml message, when the parser found the value for an SenMLJsonListener
-    virtual void actuate(const void* value, int dataLength, SenMLDataType dataType);
-
-    //calculates the nr of fields that this record will produce.
-    //The default implementation already adds 1 field for the value.
-    int getFieldLength();
-
-private:
-    double _time;
-    int _updateTime;
-    String _name;
-    SenMLUnit _unit;
-
+    friend class SenMLCborParser;
     friend class SenMLJsonListener;
+    public:
+    
+        /**
+         * create a SenMLRecord object.
+         * @param name the identifier for this record. This is a free-form string, but a set of
+         *             predefined names, supported by the KPN network can be found in senml_enums.h
+         */
+        SenMLRecord(const char* name);
+
+        /**
+         * create a SenMLRecord object.
+         * @param name the string that will be prepended to all records in this pack. 
+         *                 Is used to represent the name of the device.
+         * @param unit the unit that should be included in the output. See the SenMLUnit enum for 
+         *             supported unit types.
+         */
+        SenMLRecord(const char* name, SenMLUnit unit);
+    
+
+        /**
+         * returns the time assigned to this record. NaN represents 'no time assigned'.
+         * See [base fields](https://tools.ietf.org/html/draft-ietf-core-senml-13#section-4.1) for more info on the time value.
+         * @returns the timestamp assigned to the record, expressed in unix epoch, relative to the
+         *          parent SenMLPack object's base time (if any).
+         */ 
+        double getTime() {return this->_time;};
+
+        /**
+         * set the time, expressed as a unix epoch time, absolute or relative to the base time of the 
+         * parent SenMLPack object..
+         * when absolute is true (default behaviour), the time value will be made relative to the 
+         * base time of the pack object, if it has a base time.
+         * See [base fields](https://tools.ietf.org/html/draft-ietf-core-senml-13#section-4.1) for more info on the time value.
+         * Possible reasons for failure:
+         *  - if there is a root object, but it is not a SenMLPack
+         *  - if absolute is false, but there is no parent SenMLPack object.
+         * @param value the unix epoch time value to assign to the record
+         * @param absolute When true (default), the value will be interpreted as an absolute time stamp. If there 
+         *                 is a parent SenMLPack, the value will be made relative to the pack's base time, if there is any.
+         *                 When false, no conversion is done, but a parent SenMLPack has to be present.
+         * @returns true upon success, otherwise false.
+         */ 
+        bool setTime(double value, bool absolute = true);
+
+
+        /**
+         * Get the name of the record.
+         * @returns the name of the record as an immutable string.
+         */        
+        inline const char* getName(){ return this->_name.c_str();}
+
+        /**
+         * Assign an identifier to the record. This is a free-form string, but a set of
+         * predefined names, supported by the KPN network can be found in senml_enums.h
+         * @param name a string that represents the identifier for the record. A copy of the value
+         *             is made.
+         * @returns none
+         */
+        inline void setName(const char* name){ this->_name = name; }
+
+
+        /**
+         * Get the expected timestamp at which this record will be updated again.
+         * @returns a unix epoch time.
+         */   
+        inline int getUpdateTime(){ return this->_updateTime;}
+
+        /**
+         * Assign a timestamp to the record at which it is expected to update the value.
+         * @param value a unix epoch time.
+         * @returns none
+         */
+        inline void setUpdateTime(int value){ this->_updateTime = value; }
+
+
+        /**
+         * Get the enum that identifies the unit name assigned to the record.
+         * The value SENML_UNIT_NONE means that no unit will be generated in the output.
+         * Senml defines a fixed set of supported [unit names](https://tools.ietf.org/html/draft-ietf-core-senml-13#section-12.1).
+         * @returns a SenMLUnit enum value representing the unit name.
+         */ 
+        SenMLUnit getUnit(){ return this->_unit;}
+
+        /**
+         * Assigns a unit value to the record. 
+         * The value SENML_UNIT_NONE means that no unit will be generated in the output.
+         * Senml defines a fixed set of supported [unit names](https://tools.ietf.org/html/draft-ietf-core-senml-13#section-12.1).
+         * @param value a SenMLUnit enum value representing the unit name.
+         * @returns none
+         */
+        void setUnit(SenMLUnit value){ this->_unit = value; }
+
+        //This function is called by the root SenMLPack object to indicate that the object
+        //should adjust it's time info relative to the new base time (if applicable)
+        //doesn't do anything by default
+        virtual void adjustToBaseTime(double prev, double time);
+
+        /*
+        renders all the fields to json, without the starting and ending brackets.
+        Inheriters can extend this function if they want to add extra fields to the json output
+        */
+        virtual void fieldsToJson();
+
+        virtual void contentToCbor();
+
+
+        //renders all the fields to cbor format. renders all the fields of the object without the {}
+        void fieldsToCbor();
+
+    protected:
+
+        virtual void contentToJson();
+        
+
+        //called while parsing a senml message, when the parser found the value for an SenMLJsonListener
+        virtual void actuate(const void* value, int dataLength, SenMLDataType dataType);
+
+        //calculates the nr of fields that this record will produce.
+        //The default implementation already adds 1 field for the value.
+        int getFieldLength();
+
+    private:
+        double _time;
+        int _updateTime;
+        String _name;
+        SenMLUnit _unit;
 };
 
 #endif // SENMLRECORD
