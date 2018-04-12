@@ -46,32 +46,7 @@ class SenMLCborParser: public SenMLBaseParser {
 
     unsigned int processBytes(SenMLDataType type);
 
-    unsigned int processArray()
-    {
-        const bool is_indefinite = (peekChar() == (CBOR_ARRAY | CBOR_VAR_FOLLOWS));
-        uint64_t array_length = 0;
-        size_t read_bytes;
-
-        if (is_indefinite){
-            log_debug("not supported");
-        }
-        else
-            read_bytes = decode_int(&array_length);
-
-        size_t i = 0;
-
-        while (i < array_length) {
-            size_t inner_read_bytes = this->parseNext();
-            if (inner_read_bytes == 0) {
-                log_debug("invalid input");
-                break;
-            }
-            read_bytes += inner_read_bytes;
-            ++i;
-        }
-
-        return read_bytes;
-    };
+    unsigned int processArray();
 
     inline unsigned int processMap()
     {
