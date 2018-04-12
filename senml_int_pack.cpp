@@ -54,7 +54,7 @@ void SenMLIntPack::fieldsToCbor()
 
     val = this->getBaseSum();
     if(val){
-        cbor_serialize_int(SENML_CBOR_VS_LABEL);
+        cbor_serialize_int(SENML_CBOR_BS_LABEL);
         cbor_serialize_int(val);
     }
 }
