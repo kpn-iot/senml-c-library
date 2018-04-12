@@ -68,6 +68,13 @@ class SenMLPack: public SenMLBase
 
         /**
          * create a SenMLPack object.
+         */
+        SenMLPack():  _bu(SENML_UNIT_NONE), 
+                      _bt(NAN),
+                      _end(NULL) {};
+
+        /**
+         * create a SenMLPack object.
          * @param baseName the string that will be prepended to all records in this pack. 
          *                 Is used to represent the name of the device.
          */

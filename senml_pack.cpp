@@ -171,9 +171,12 @@ void SenMLPack::internalToJson()
 
 void SenMLPack::fieldsToJson()
 {
-    printText("\"bn\":\"", 6);
-    printText(this->_bn.c_str(), this->_bn.length());
-    printText("\"", 1);
+    int bnLength = this->_bn.length();
+    if(bnLength > 0){
+        printText("\"bn\":\"", 6);
+        printText(this->_bn.c_str(), bnLength);
+        printText("\"", 1);
+    }
     if(this->_bu){
         printText(",\"bu\":\"", 7);
         printUnit(this->_bu);
@@ -281,7 +284,8 @@ int SenMLPack::getArrayLength()
 
 int SenMLPack::getFieldLength()
 {
-    int result = 1;                             //always render the base name
+    int result = 0;                             
+    if(this._bn.length() > 0 ) result++;
     if(this->_bu) result++;
     if(!isnan(this->_bt)) result++;
 
@@ -295,8 +299,10 @@ int SenMLPack::getFieldLength()
 
 void SenMLPack::fieldsToCbor()
 {
-    cbor_serialize_int(SENML_CBOR_BN_LABEL);
-    cbor_serialize_unicode_string(this->_bn.c_str());
+    if(this._bn.length() > 0 ){
+        cbor_serialize_int(SENML_CBOR_BN_LABEL);
+        cbor_serialize_unicode_string(this->_bn.c_str());
+    }
     if(this->_bu){
         cbor_serialize_int(SENML_CBOR_BU_LABEL);
         cbor_serialize_unicode_string(senml_units_names[this->_bu]);
