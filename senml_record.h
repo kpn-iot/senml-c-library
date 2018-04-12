@@ -31,6 +31,11 @@ class SenMLRecord: public SenMLBase
     
         /**
          * create a SenMLRecord object.
+         */
+        SenMLRecord(): _unit(SENML_UNIT_NONE), _time(NAN), _updateTime(0){};
+
+        /**
+         * create a SenMLRecord object.
          * @param name the identifier for this record. This is a free-form string, but a set of
          *             predefined names, supported by the KPN network can be found in senml_enums.h
          */

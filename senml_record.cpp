@@ -6,7 +6,6 @@
 
 SenMLRecord::SenMLRecord(const char* name): _name(name), _unit(SENML_UNIT_NONE), _time(NAN), _updateTime(0)
 {
-    
 }
 
 SenMLRecord::SenMLRecord(const char* name, SenMLUnit unit): _name(name), _unit(unit), _time(NAN), _updateTime(0)
@@ -28,7 +27,7 @@ bool SenMLRecord::setTime(double value, bool absolute)
             }
         }
     }
-    else if(root == null){
+    else if(root == NULL){
         return false;
     }
     this->_time = value;
@@ -52,9 +51,12 @@ void SenMLRecord::adjustToBaseTime(double prev, double time)
 
 void SenMLRecord::fieldsToJson()
 {
-    printText("\"n\":\"", 5);
-    printText(this->_name.c_str(), this->_name.length());
-    printText("\"", 1);
+    int bnLength = this->_name.length();
+    if(bnLength){
+        printText("\"n\":\"", 5);
+        printText(this->_name.c_str(), bnLength);
+        printText("\"", 1);
+    }
     if(!isnan(this->_time)){
         printText(",\"t\":", 5);
         printDouble(this->_time, SENML_MAX_DOUBLE_PRECISION);
@@ -91,7 +93,8 @@ void SenMLRecord::contentToCbor()
 
 int SenMLRecord::getFieldLength()
 {
-    int result = 2;                                 //always have 1 item for the value and 1 for the name
+    int result = 1;                                 //always have 1 item for the value
+    if(this->_name.length() > 0) result++;
     if(!isnan(this->_time)) result++;
     if(this->_unit != SENML_UNIT_NONE) result++;
     if(this->_updateTime != 0) result ++;
@@ -100,8 +103,10 @@ int SenMLRecord::getFieldLength()
 
 void SenMLRecord::fieldsToCbor()
 {
-    cbor_serialize_int(SENML_CBOR_N_LABEL);
-    cbor_serialize_unicode_string(this->_name.c_str());
+    if(this->_name.length() > 0){
+        cbor_serialize_int(SENML_CBOR_N_LABEL);
+        cbor_serialize_unicode_string(this->_name.c_str());
+    }
     if(!isnan(this->_time)){
         cbor_serialize_int(SENML_CBOR_T_LABEL);
         cbor_serialize_double(this->_time);
