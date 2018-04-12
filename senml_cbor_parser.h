@@ -44,6 +44,8 @@ class SenMLCborParser: public SenMLBaseParser {
 
     void internalParse();
 
+    unsigned int processBytes(SenMLDataType type);
+
     unsigned int processArray()
     {
         const bool is_indefinite = (peekChar() == (CBOR_ARRAY | CBOR_VAR_FOLLOWS));
@@ -141,45 +143,7 @@ class SenMLCborParser: public SenMLBaseParser {
         return read_bytes; 
     };
 
-    inline unsigned int processBytes(SenMLDataType type)
-    {
-        uint64_t bytes_length;                              //needs to be this big for decode_int
-        size_t bytes_read = decode_int(&bytes_length);
-        
-        if(bytes_read == 0) return 0;
-        char buffer[bytes_length + 1];                      //need a null 
-        for(int i = 0; i < (int)bytes_length; i++)
-            buffer[i] = readChar();
-        buffer[bytes_length] = 0;                           //close it, just to be save. not always needed, but it is for strings
-
-        if(type == CBOR_TYPE_DATA){                         //we are expecting binary data, so it has to be for a binary data value.
-            if(this->curLabel == SENML_CBOR_VD_LABEL)
-                this->setBinaryValue(buffer, bytes_length); 
-            else
-                log_debug("invalid input");
-        }else{                                              //its text
-            String value;
-            switch (this->curLabel)
-            {
-                case SENML_CBOR_BN_LABEL: 
-                    value = buffer;
-                    this->setCurrentPack(value); 
-                    break;
-                case SENML_CBOR_BU_LABEL: 
-                    value = buffer;
-                    this->checkBaseUnit(value); 
-                    break;
-                case SENML_CBOR_N_LABEL:
-                    value = buffer;
-                    this->setCurrentRecord(value); 
-                    break;
-                case SENML_CBOR_VS_LABEL:
-                    this->setValue((void*)buffer, bytes_length, CBOR_TYPE_STRING);
-                     break;
-            }
-        }
-        return bytes_read + bytes_length;
-    };
+    
 };
 
 #endif // SENMLCBORPARSER
