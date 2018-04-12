@@ -22,7 +22,10 @@ int SenMLIntRecord::getAdjustedValue()
 void SenMLIntRecord::fieldsToJson()
 {
     SenMLRecord::fieldsToJson();
-    printText(",\"v\":", 5);
+    if(this->asSum())
+        printText(",\"s\":", 5);
+    else
+        printText(",\"v\":", 5);
     #ifdef __MBED__
         char buf[10];
         sprintf(buf, "%d", this->getAdjustedValue());
@@ -37,7 +40,10 @@ void SenMLIntRecord::fieldsToJson()
 void SenMLIntRecord::fieldsToCbor()
 {
     SenMLRecord::fieldsToCbor();
-    cbor_serialize_int(SENML_CBOR_V_LABEL);
+    if(this->asSum())
+        cbor_serialize_int(SENML_CBOR_S_LABEL);
+    else
+        cbor_serialize_int(SENML_CBOR_V_LABEL);
     cbor_serialize_int(this->getAdjustedValue());
 }
 

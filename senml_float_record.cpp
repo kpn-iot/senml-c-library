@@ -22,14 +22,20 @@ float SenMLFloatRecord::getAdjustedValue()
 void SenMLFloatRecord::fieldsToJson()
 {
     SenMLRecord::fieldsToJson();
-    printText(",\"v\":", 5);
+    if(this->asSum())
+        printText(",\"s\":", 5);
+    else
+        printText(",\"v\":", 5);
     printDouble(this->getAdjustedValue(), SENML_MAX_DOUBLE_PRECISION);
 }
 
 void SenMLFloatRecord::fieldsToCbor()
 {
     SenMLRecord::fieldsToCbor();
-    cbor_serialize_int(SENML_CBOR_V_LABEL);
+    if(this->asSum())
+        cbor_serialize_int(SENML_CBOR_S_LABEL);
+    else
+        cbor_serialize_int(SENML_CBOR_V_LABEL);
     cbor_serialize_double(this->getAdjustedValue());
 }
 
