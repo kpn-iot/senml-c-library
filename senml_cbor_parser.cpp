@@ -29,7 +29,6 @@ void SenMLCborParser::internalParse()
     flush();                                                    //make certain that the input streams are empty when done. This also resets any internally stored data. If we don't do this, we can only handle 1 bad input stream, ten it breaks.
 }
 
-#include <arduino.h>
 
 void SenMLCborParser::processDouble(double value){
     switch (this->curLabel)
@@ -57,7 +56,7 @@ unsigned int SenMLCborParser::parseNext()
             float floatVal;
             double doubleVal;
             size_t read_bytes;
-            switch (peekChar()) {
+            switch ((int)peekChar()) {
                 case CBOR_FALSE:   
                     readChar();                                         //need to remove the char from the stream.
                     boolRes = false;
