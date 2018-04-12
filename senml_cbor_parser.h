@@ -141,7 +141,7 @@ class SenMLCborParser: public SenMLBaseParser {
         return read_bytes; 
     };
 
-    unsigned int processBytes(SenMLDataType type)
+    inline unsigned int processBytes(SenMLDataType type)
     {
         uint64_t bytes_length;                              //needs to be this big for decode_int
         size_t bytes_read = decode_int(&bytes_length);
