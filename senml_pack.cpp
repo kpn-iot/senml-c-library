@@ -288,7 +288,7 @@ int SenMLPack::getArrayLength()
 int SenMLPack::getFieldLength()
 {
     int result = 0;                             
-    if(this._bn.length() > 0 ) result++;
+    if(this->_bn.length() > 0 ) result++;
     if(this->_bu) result++;
     if(!isnan(this->_bt)) result++;
 
@@ -303,7 +303,7 @@ int SenMLPack::getFieldLength()
 int SenMLPack::fieldsToCbor()
 {
     int res = 0 ;
-    if(this._bn.length() > 0 ){
+    if(this->_bn.length() > 0 ){
         res += cbor_serialize_int(SENML_CBOR_BN_LABEL);
         res += cbor_serialize_unicode_string(this->_bn.c_str());
     }
