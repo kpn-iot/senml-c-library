@@ -2,6 +2,7 @@
 #include <senml_helpers.h>
 #include <cbor.h>
 #include <senml_double_pack.h> 
+#include <senml_int_pack.h> 
 
 SenMLFloatRecord::SenMLFloatRecord(const char* name): SenMLRecordTemplate(name)
 {
@@ -14,8 +15,18 @@ SenMLFloatRecord::SenMLFloatRecord(const char* name, SenMLUnit unit): SenMLRecor
 float SenMLFloatRecord::getAdjustedValue()
 {
     float adjustedValue = this->get();
-    if(_streamCtx->baseDataType == CBOR_TYPE_DOUBLE)
-        adjustedValue -= ((SenMLDoublePack*)this->getRoot())->getBaseValue();
+    if(_streamCtx->baseDataType == CBOR_TYPE_DOUBLE){
+        if(this->asSum())
+            adjustedValue -= ((SenMLDoublePack*)this->getRoot())->getBaseSum();
+        else
+            adjustedValue -= ((SenMLDoublePack*)this->getRoot())->getBaseValue();
+    }
+    else if( _streamCtx->baseDataType == CBOR_TYPE_INT){
+        if(this->asSum())
+            adjustedValue -= ((SenMLIntPack*)this->getRoot())->getBaseSum();
+        else
+            adjustedValue -= ((SenMLIntPack*)this->getRoot())->getBaseValue();
+    }
     return adjustedValue;
 }
 

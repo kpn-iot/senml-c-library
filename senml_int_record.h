@@ -24,6 +24,7 @@ protected:
 
 private:
     int getAdjustedValue();
+    double getAdjustedValueD();
 };
 
 #endif // SENMLINTRECORD
