@@ -26,12 +26,19 @@ void printData(const char* device, const char* record, const void* value, int va
     Serial.print(F("record: "));
     Serial.println(record);
     Serial.print(F("value: "));
-    switch (dataType)
-    {
-        case SENML_TYPE_NR:     Serial.println(*((double*)value));  Serial.print(d_type);  Serial.print(F("double")); break;
-        case SENML_TYPE_STRING: Serial.println((char*)value);       Serial.print(d_type);  Serial.print(F("string")); break;
-        case SENML_TYPE_BOOL:   Serial.println(*((bool*)value));    Serial.print(d_type);  Serial.print(F("bool"));   break;
-        case SENML_TYPE_DATA:   Serial.println((char*)value);       Serial.print(d_type);  Serial.print(F("binary")); break;
+    if(dataType == SENML_TYPE_NR){                              //compiler doesn't like string construct in switch, so put it in an 'if'
+        String tempStr(*((double*)value));                      //println doesn't support doubles, but can convert to string.
+        Serial.println(tempStr);  
+        Serial.print(d_type);  
+        Serial.print(F("double")); 
+    }
+    else{
+        switch (dataType)
+        {
+            case SENML_TYPE_STRING: Serial.println((char*)value);       Serial.print(d_type);  Serial.print(F("string")); break;
+            case SENML_TYPE_BOOL:   Serial.println(*((bool*)value));    Serial.print(d_type);  Serial.print(F("bool"));   break;
+            case SENML_TYPE_DATA:   Serial.println((char*)value);       Serial.print(d_type);  Serial.print(F("binary")); break;
+        }
     }
     Serial.print(F(", length: ")); Serial.println(valueLength); 
 }
