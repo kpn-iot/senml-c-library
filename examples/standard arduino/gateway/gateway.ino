@@ -22,7 +22,7 @@ void loop(){
     doc.add(&dev2);
     doc.add(&dev3);
 
-    SenMLFloatRecord rec1("temp", SENML_UNIT_DEGREES_CELSIUS, 20.0);
+    SenMLFloatRecord rec1(KPN_SENML_TEMPERATURE, SENML_UNIT_DEGREES_CELSIUS, 20.0);
     dev1.add(&rec1);                      
 
     SenMLBinaryRecord rec2("blob");
@@ -34,7 +34,7 @@ void loop(){
     SenMLBoolRecord rec4("bool_val", SENML_UNIT_NONE, false);
     dev3.add(&rec4);   
 
-    doc.toJson(&Serial, SENML_HEX);
+    doc.toJson(&Serial);                        //use doc.toJson(&Serial, SENML_HEX); for direct hex printing
     Serial.println();
     delay(1000);
 }

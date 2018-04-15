@@ -11,7 +11,7 @@ void setup(){
 
 void loop(){
     int val = 10;                                   //just give it some value
-    SenMLFloatRecord rec("temp", SENML_UNIT_DEGREES_CELSIUS, val);
+    SenMLFloatRecord rec(KPN_SENML_TEMPERATURE, SENML_UNIT_DEGREES_CELSIUS, val);
     doc.add(&rec);                      
     doc.toJson(&Serial);                            //as text
     Serial.println();

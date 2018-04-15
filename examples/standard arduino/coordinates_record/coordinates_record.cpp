@@ -109,9 +109,9 @@ int CoordinatesRecord::fieldsToCborFor(char field)
     const char * unit = NULL;
     switch (field)
     {
-        case LATITUDE:  unit = "lat"; break;
-        case LONGITUDE: unit = "lon"; break;
-        case ALTIDUDE:  unit = "m"; break;
+        case LATITUDE:  unit = KPN_SENML_LATTITUDE; break;
+        case LONGITUDE: unit = KPN_SENML_LONGITUDE; break;
+        case ALTIDUDE:  unit = KPN_SENML_ALTITUDE; break;
     }
     res += cbor_serialize_int(SENML_CBOR_U_LABEL);
     res += cbor_serialize_unicode_string(senml_units_names[this->getUnit()]);

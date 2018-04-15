@@ -11,7 +11,7 @@ void setup(){
 
 void loop(){
     int val = digitalRead(1);  
-    SenMLBoolRecord rec("temp");
+    SenMLBoolRecord rec(KPN_SENML_TEMPERATURE);
     rec.set(val > 0);
     doc.add(&rec);                      
 

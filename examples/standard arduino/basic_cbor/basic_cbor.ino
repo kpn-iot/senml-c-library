@@ -19,7 +19,7 @@ void printHex(unsigned char hex)
 
 void loop(){
     int val = 10;//analogRead(A1);  
-    SenMLFloatRecord rec("temp", SENML_UNIT_DEGREES_CELSIUS, val);
+    SenMLFloatRecord rec(KPN_SENML_TEMPERATURE, SENML_UNIT_DEGREES_CELSIUS, val);
     doc.add(&rec);                      
 
     char buffer[80];   

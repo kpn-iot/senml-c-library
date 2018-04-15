@@ -8,7 +8,7 @@ void setTemp(float value){
 }
 
 SenMLPack doc("device_name");
-SenMLFloatActuator rec("temp", SENML_UNIT_DEGREES_CELSIUS, setTemp);
+SenMLFloatActuator rec(KPN_SENML_TEMPERATURE, SENML_UNIT_DEGREES_CELSIUS, setTemp);
 
 void setup(){
     Serial.begin(57600);
