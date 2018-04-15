@@ -1,5 +1,4 @@
 #include <kpn_senml.h>
-#include <PrintEx.h>
 
 SenMLPack doc("device_name");
 
@@ -19,24 +18,23 @@ void printHex(unsigned char hex)
 }
 
 void loop(){
-    int val = analogRead(A1);  
+    int val = 10;//analogRead(A1);  
     SenMLFloatRecord rec("temp", SENML_UNIT_DEGREES_CELSIUS, val);
     doc.add(&rec);                      
 
-    char buffer[50];   
-    memset(buffer,0,sizeof(buffer));         
-    GString str = buffer;               //Wrap the buffer in a GString, making it printable.
-    PrintAdapter streamer = str;        //Convert a Print object to a Stream object.
-    doc.toCbor(&streamer);              //render it as a raw binary data blob
+    char buffer[80];   
+    memset(buffer, 0, sizeof(buffer));         
+    int len = doc.toCbor(buffer, 80);              //render it as a raw binary data blob
     
-    for(int i = 0; i < 50; i++){
+    for(int i = 0; i <= len; i++){
         printHex(buffer[i]);
     }
     Serial.println();
-    Serial.println();
 
-    //memset(buffer,0,sizeof(buffer));         
-    //doc.toCbor(&streamer, SENML_HEX);   //directly renering HEX values
-    //Serial.println(buffer);
+    memset(buffer, 0, sizeof(buffer));         
+    doc.toCbor(buffer, 80, SENML_HEX);   //directly renering HEX values
+    Serial.println(buffer);
+    Serial.println();
+    Serial.println();
     delay(1000);
 }

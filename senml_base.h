@@ -43,7 +43,7 @@ public:
 
     //renders all the fields to cbor format. renders all the fields of the object without the {}
     //note: this is public so that custom implementations for the record object can use other objects internally and render to json using this function (ex: coordinatesRecord using 3 floatRecrods for lat, lon & alt.
-    virtual void fieldsToCbor() = 0;
+    virtual int fieldsToCbor() = 0;
 
 protected:
 
@@ -68,7 +68,7 @@ protected:
     virtual bool isPack() { return false; }
 
     //renders the content of the pack object without [], but still with {} for objects
-    virtual void contentToCbor() = 0;    
+    virtual int contentToCbor() = 0;    
 
     //calculates the nr of items that this object will put in the json array in senml representation
     //this is used for rendering cbor which needs to declare the nr of elements in an array.

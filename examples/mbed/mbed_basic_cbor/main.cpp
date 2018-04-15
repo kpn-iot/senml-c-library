@@ -12,11 +12,16 @@ int main() {
         SenMLFloatRecord rec("temp", SENML_UNIT_DEGREES_CELSIUS, 20);
         doc.add(&rec);                      
 
-        doc.toCbor(&pc);              //render it as a raw binary data blob
+        doc.toCbor(&pc);                        //render it as a raw binary data blob directly to stream
         pc.printf("\n\r \n\r");
-        doc.toCbor(&pc, SENML_HEX);   //directly renering HEX values 
+        doc.toCbor(&pc, SENML_HEX);             //directly renering HEX values  directly to stream
         pc.printf("\n\r \n\r");
 
+        char buffer[80];                        //directly renering HEX values to memory
+        memset(buffer, 0, sizeof(buffer));  
+        doc.toCbor(buffer, 80, SENML_HEX);   
+        pc.printf(buffer);
+        pc.printf("\n\r \n\r");
         wait(1);
     }
 }

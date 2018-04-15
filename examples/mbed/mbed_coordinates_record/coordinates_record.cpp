@@ -76,18 +76,19 @@ void CoordinatesRecord::fieldsToJsonFor(char field)
     }
 }
 
-void CoordinatesRecord::fieldsToCbor()
+int CoordinatesRecord::fieldsToCbor()
 {
-    this->fieldsToCborFor(LATITUDE);
+    int res = this->fieldsToCborFor(LATITUDE);
 
-    cbor_serialize_map(this->getFieldLength());
-    this->fieldsToCborFor(LONGITUDE);
+    res += cbor_serialize_map(this->getFieldLength());
+    res += this->fieldsToCborFor(LONGITUDE);
     
-    cbor_serialize_map(this->getFieldLength());
-    this->fieldsToCborFor(ALTIDUDE);
+    res += cbor_serialize_map(this->getFieldLength());
+    res += this->fieldsToCborFor(ALTIDUDE);
+    return res;
 }
 
-void CoordinatesRecord::fieldsToCborFor(char field)
+int CoordinatesRecord::fieldsToCborFor(char field)
 {
     string name = this->getName();
     switch (field)
@@ -96,13 +97,13 @@ void CoordinatesRecord::fieldsToCborFor(char field)
         case LONGITUDE: name += "_lon"; break;
         case ALTIDUDE:  name += "_alt"; break;
     }
-    cbor_serialize_int(SENML_CBOR_N_LABEL);
-    cbor_serialize_unicode_string(name.c_str());
+    int res = cbor_serialize_int(SENML_CBOR_N_LABEL);
+    res += cbor_serialize_unicode_string(name.c_str());
 
     double time = this->getTime();
     if(!isnan(time)){
-        cbor_serialize_int(SENML_CBOR_T_LABEL);
-        cbor_serialize_double(time);
+        res += cbor_serialize_int(SENML_CBOR_T_LABEL);
+        res += cbor_serialize_double(time);
     }
     
     char * unit = NULL;
@@ -112,8 +113,8 @@ void CoordinatesRecord::fieldsToCborFor(char field)
         case LONGITUDE: unit = "lon"; break;
         case ALTIDUDE:  unit = "m"; break;
     }
-    cbor_serialize_int(SENML_CBOR_U_LABEL);
-    cbor_serialize_unicode_string(senml_units_names[this->getUnit()]);
+    res += cbor_serialize_int(SENML_CBOR_U_LABEL);
+    res += cbor_serialize_unicode_string(senml_units_names[this->getUnit()]);
     
     double value = 0;
     switch (field)
@@ -123,6 +124,6 @@ void CoordinatesRecord::fieldsToCborFor(char field)
         case ALTIDUDE:  value = this->_alt; break;
         default: break;
     }
-    cbor_serialize_int(SENML_CBOR_V_LABEL);
-    cbor_serialize_double(value);
+    res += cbor_serialize_int(SENML_CBOR_V_LABEL);
+    res += cbor_serialize_double(value);
 }

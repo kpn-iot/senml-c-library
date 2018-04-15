@@ -27,7 +27,7 @@ protected:
     virtual int getArrayLength() { return 3; };
 
     //renders all the fields to cbor format. renders all the fields of the object without the {}
-    virtual void fieldsToCbor();
+    virtual int fieldsToCbor();
     
 private:
     SenMLFloatRecord _lat; 

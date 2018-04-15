@@ -230,42 +230,45 @@ void SenMLPack::setupStreamCtx(Stream *dest, SenMLStreamMethod format)
     _streamCtx->baseDataType = CBOR_TYPE_DATA;                             //data never adjusts for basevalue, so this is safe.
 }
 
-void SenMLPack::toCbor(Stream *dest, SenMLStreamMethod format)
+int SenMLPack::toCbor(Stream *dest, SenMLStreamMethod format)
 {
     StreamContext renderTo;                                              //set up the global record that configures the rendering. This saves us some bytes on the stack and in code by not having to pass along the values as function arguments.
     _streamCtx = &renderTo;
     this->setupStreamCtx(dest, format);
-    cbor_serialize_array(this->getArrayLength());
-    this->contentToCbor();
+    int res = cbor_serialize_array(this->getArrayLength());
+    res += this->contentToCbor();
+    return res;
 }
 
-void SenMLPack::toCbor(char *dest, int length, SenMLStreamMethod format)
+int SenMLPack::toCbor(char *dest, int length, SenMLStreamMethod format)
 {
     StreamContext renderTo;                                              //set up the global record that configures the rendering. This saves us some bytes on the stack and in code by not having to pass along the values as function arguments.
     _streamCtx = &renderTo;
     this->setupStreamCtx(dest, length, format);
-    cbor_serialize_array(this->getArrayLength());
-    this->contentToCbor();
+    int res = cbor_serialize_array(this->getArrayLength());
+    res += this->contentToCbor();
+    return res;
 }
 
-void SenMLPack::contentToCbor()
+int SenMLPack::contentToCbor()
 {
-    cbor_serialize_map(this->getFieldLength());
+    int length = cbor_serialize_map(this->getFieldLength());
 
-    this->fieldsToCbor();
+    int res = this->fieldsToCbor();
     SenMLBase *next = this->_start;
     if(next && next->isPack() == false){                        //we can only inline the first record. If the first item is a Pack (child device), then don't inline it.
-        next->fieldsToCbor();
+        res += next->fieldsToCbor();
         next = next->getNext();
     }
 
     while(next){
         if(next->isPack() == false)
-            next->contentToCbor();
+            res += next->contentToCbor();
         else
-            ((SenMLPack*)next)->contentToCbor();
+            res += ((SenMLPack*)next)->contentToCbor();
         next = next->getNext();
     }
+    return res;
 }
 
 int SenMLPack::getArrayLength()
@@ -297,20 +300,22 @@ int SenMLPack::getFieldLength()
     return result;
 }
 
-void SenMLPack::fieldsToCbor()
+int SenMLPack::fieldsToCbor()
 {
+    int res = 0 ;
     if(this._bn.length() > 0 ){
-        cbor_serialize_int(SENML_CBOR_BN_LABEL);
-        cbor_serialize_unicode_string(this->_bn.c_str());
+        res += cbor_serialize_int(SENML_CBOR_BN_LABEL);
+        res += cbor_serialize_unicode_string(this->_bn.c_str());
     }
     if(this->_bu){
-        cbor_serialize_int(SENML_CBOR_BU_LABEL);
-        cbor_serialize_unicode_string(senml_units_names[this->_bu]);
+        res += cbor_serialize_int(SENML_CBOR_BU_LABEL);
+        res += cbor_serialize_unicode_string(senml_units_names[this->_bu]);
     }
     if(!isnan(this->_bt)){
-        cbor_serialize_int(SENML_CBOR_BT_LABEL);
-        cbor_serialize_double(this->_bt);
+        res += cbor_serialize_int(SENML_CBOR_BT_LABEL);
+        res += cbor_serialize_double(this->_bt);
     }
+    return res;
 }
 
 

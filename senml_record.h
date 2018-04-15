@@ -135,11 +135,11 @@ class SenMLRecord: public SenMLBase
         */
         virtual void fieldsToJson();
 
-        virtual void contentToCbor();
+        virtual int contentToCbor();
 
 
         //renders all the fields to cbor format. renders all the fields of the object without the {}
-        void fieldsToCbor();
+        int fieldsToCbor();
 
     protected:
 

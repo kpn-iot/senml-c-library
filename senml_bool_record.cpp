@@ -20,11 +20,12 @@ void SenMLBoolRecord::fieldsToJson()
         printText("false", 5);
 }
 
-void SenMLBoolRecord::fieldsToCbor()
+int SenMLBoolRecord::fieldsToCbor()
 {
-    SenMLRecord::fieldsToCbor();
-    cbor_serialize_int(SENML_CBOR_VB_LABEL);
-    cbor_serialize_bool(this->get());
+    int res = SenMLRecord::fieldsToCbor();
+    res += cbor_serialize_int(SENML_CBOR_VB_LABEL);
+    res += cbor_serialize_bool(this->get());
+    return res;
 }
 
 

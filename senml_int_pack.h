@@ -28,7 +28,7 @@ class SenMLIntPack: public SenMLPackTemplate<int>
 
         virtual void fieldsToJson();
 
-        virtual void fieldsToCbor();
+        virtual int fieldsToCbor();
 
     private:
         int getAdjustedValue();

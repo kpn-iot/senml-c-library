@@ -41,22 +41,23 @@ void SenMLIntPack::fieldsToJson()
 
 }
 
-void SenMLIntPack::fieldsToCbor() 
+int SenMLIntPack::fieldsToCbor() 
 {
     int val;
-    SenMLPack::fieldsToCbor();
+    int res = SenMLPack::fieldsToCbor();
     
     val = this->getBaseValue();
     if(val){
-        cbor_serialize_int(SENML_CBOR_VB_LABEL);
-        cbor_serialize_int(val);
+        res += cbor_serialize_int(SENML_CBOR_VB_LABEL);
+        res += cbor_serialize_int(val);
     }
 
     val = this->getBaseSum();
     if(val){
-        cbor_serialize_int(SENML_CBOR_BS_LABEL);
-        cbor_serialize_int(val);
+        res += cbor_serialize_int(SENML_CBOR_BS_LABEL);
+        res += cbor_serialize_int(val);
     }
+    return res;
 }
 
 

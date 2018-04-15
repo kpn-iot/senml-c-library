@@ -1,3 +1,4 @@
 examples/.vscode/arduino.json
 examples/.vscode/
 examples/esp32/.vscode/
+examples/standard arduino/build/

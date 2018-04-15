@@ -18,7 +18,7 @@ public:
     virtual void fieldsToJson();
 
     //renders all the fields to cbor format. renders all the fields of the object without the {}
-    virtual void fieldsToCbor();
+    virtual int fieldsToCbor();
 
 protected:
     

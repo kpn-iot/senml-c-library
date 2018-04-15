@@ -231,9 +231,9 @@ class SenMLPack: public SenMLBase
          * This function is ideal for devices with low memory usage but offers less control over the rendering process.
          * @param dest the destination stream to where the data will be rendered without buffering it in memory
          * @param format determins how the data will be rendered. See SenMLStreamMethod for possible methods.
-         * @returns none
+         * @returns nr of bytes that were rendered
          */
-        void toCbor(Stream* dest, SenMLStreamMethod format=SENML_RAW);
+        int toCbor(Stream* dest, SenMLStreamMethod format=SENML_RAW);
 
         /**
          * render the content of the current object to cbor data (binary).
@@ -242,9 +242,9 @@ class SenMLPack: public SenMLBase
          * @param dest a memory buffer to which the data will be rendred.
          * @param length the length of the memory buffer.
          * @param format determins how the data will be rendered. See SenMLStreamMethod for possible methods.
-         * @returns none
+         * @returns nr of bytes that were rendered
          */
-        void toCbor(char *dest, int length, SenMLStreamMethod format=SENML_RAW);
+        int toCbor(char *dest, int length, SenMLStreamMethod format=SENML_RAW);
 
         /**
          * read and parse a senml json string from the specified source and, for each registered actuator, call the
@@ -380,7 +380,7 @@ class SenMLPack: public SenMLBase
         */
         virtual void fieldsToJson();
 
-        virtual void fieldsToCbor();
+        virtual int fieldsToCbor();
 
         //derived classes can use this function to see if the root object (getRoot) is a SenMLPack
         //class or not.
@@ -397,7 +397,7 @@ class SenMLPack: public SenMLBase
         void setLast(SenMLBase* value);
 
         //renders the content of the pack object without []
-        virtual void contentToCbor();    
+        virtual int contentToCbor();    
 
 
         //calculates the nr of items that there will be in the json array in senml representation

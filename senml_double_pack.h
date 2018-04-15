@@ -27,7 +27,7 @@ class SenMLDoublePack: public SenMLPackTemplate<double>
 
         virtual void fieldsToJson();
 
-        virtual void fieldsToCbor();
+        virtual int fieldsToCbor();
 
     private:
 };

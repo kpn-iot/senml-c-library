@@ -49,23 +49,24 @@ void CoordinatesRecord::fieldsToJson()
     this->_alt.fieldsToJson();
 }
 
-void CoordinatesRecord::fieldsToCbor()
+int CoordinatesRecord::fieldsToCbor()
 {
     String name = this->getName();
     name += "_lat";
     this->_lat.setName(name.c_str());
     this->_lat.setTime(this->getTime());
-    this->_lat.fieldsToCbor();
+    int res = this->_lat.fieldsToCbor();
 
     name = this->getName();
     name += "_lon";
     this->_lon.setName(name.c_str());
     this->_lon.setTime(this->getTime());
-    this->_lon.contentToCbor();
+    res += this->_lon.contentToCbor();
 
     name = this->getName();
     name += "_alt";
     this->_alt.setName(name.c_str());
     this->_alt.setTime(this->getTime());
-    this->_alt.contentToCbor();
+    res += this->_alt.contentToCbor();
+    return res;
 }

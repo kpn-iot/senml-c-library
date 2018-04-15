@@ -29,14 +29,15 @@ void SenMLFloatRecord::fieldsToJson()
     printDouble(this->getAdjustedValue(), SENML_MAX_DOUBLE_PRECISION);
 }
 
-void SenMLFloatRecord::fieldsToCbor()
+int SenMLFloatRecord::fieldsToCbor()
 {
-    SenMLRecord::fieldsToCbor();
+    int res = SenMLRecord::fieldsToCbor();
     if(this->asSum())
-        cbor_serialize_int(SENML_CBOR_S_LABEL);
+        res += cbor_serialize_int(SENML_CBOR_S_LABEL);
     else
-        cbor_serialize_int(SENML_CBOR_V_LABEL);
-    cbor_serialize_double(this->getAdjustedValue());
+        res += cbor_serialize_int(SENML_CBOR_V_LABEL);
+    res += cbor_serialize_double(this->getAdjustedValue());
+    return res;
 }
 
 

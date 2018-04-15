@@ -10,11 +10,12 @@ void SenMLStringRecord::fieldsToJson()
     printText(val.c_str(), val.length());
     printText("\"", 1);
 }
-void SenMLStringRecord::fieldsToCbor()
+int SenMLStringRecord::fieldsToCbor()
 {
-    SenMLRecord::fieldsToCbor();
-    cbor_serialize_int(SENML_CBOR_VS_LABEL);
-    cbor_serialize_unicode_string(this->get().c_str());
+    int res = SenMLRecord::fieldsToCbor();
+    res += cbor_serialize_int(SENML_CBOR_VS_LABEL);
+    res += cbor_serialize_unicode_string(this->get().c_str());
+    return res;
 }
 
 

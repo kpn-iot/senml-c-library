@@ -85,10 +85,11 @@ void SenMLRecord::actuate(const void* value, int dataLength, SenMLDataType dataT
     log_debug("no actuator");
 }
 
-void SenMLRecord::contentToCbor()
+int SenMLRecord::contentToCbor()
 {
-    cbor_serialize_map(this->getFieldLength());
-    this->fieldsToCbor();
+    int res = cbor_serialize_map(this->getFieldLength());
+    res += this->fieldsToCbor();
+    return res;
 }
 
 int SenMLRecord::getFieldLength()
@@ -101,24 +102,26 @@ int SenMLRecord::getFieldLength()
     return result;
 }
 
-void SenMLRecord::fieldsToCbor()
+int SenMLRecord::fieldsToCbor()
 {
+    int res = 0;
     if(this->_name.length() > 0){
-        cbor_serialize_int(SENML_CBOR_N_LABEL);
-        cbor_serialize_unicode_string(this->_name.c_str());
+        res += cbor_serialize_int(SENML_CBOR_N_LABEL);
+        res += cbor_serialize_unicode_string(this->_name.c_str());
     }
     if(!isnan(this->_time)){
-        cbor_serialize_int(SENML_CBOR_T_LABEL);
-        cbor_serialize_double(this->_time);
+        res += cbor_serialize_int(SENML_CBOR_T_LABEL);
+        res += cbor_serialize_double(this->_time);
     }
     if(this->_unit != SENML_UNIT_NONE){
-        cbor_serialize_int(SENML_CBOR_U_LABEL);
-        cbor_serialize_unicode_string(senml_units_names[this->_unit]);
+        res += cbor_serialize_int(SENML_CBOR_U_LABEL);
+        res += cbor_serialize_unicode_string(senml_units_names[this->_unit]);
     }
     if(this->_updateTime != 0){
-        cbor_serialize_int(SENML_CBOR_UT_LABEL);
-        cbor_serialize_int(this->_updateTime);
+        res += cbor_serialize_int(SENML_CBOR_UT_LABEL);
+        res += cbor_serialize_int(this->_updateTime);
     }
+    return res;
 }
 
 

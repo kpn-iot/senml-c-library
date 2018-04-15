@@ -27,11 +27,12 @@ void SenMLBinaryRecord::fieldsToJson()
     printText("\"", 1);
 }
 
-void SenMLBinaryRecord::fieldsToCbor()
+int SenMLBinaryRecord::fieldsToCbor()
 {
-    SenMLRecord::fieldsToCbor();
-    cbor_serialize_int(SENML_CBOR_VD_LABEL);
-    cbor_serialize_byte_string((const char*)this->_value, this->_length);
+    int res = SenMLRecord::fieldsToCbor();
+    res += cbor_serialize_int(SENML_CBOR_VD_LABEL);
+    res += cbor_serialize_byte_string((const char*)this->_value, this->_length);
+    return res;
 }
 
 
