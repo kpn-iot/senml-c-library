@@ -19,7 +19,7 @@ int main() {
         doc.add(&dev2);
         doc.add(&dev3);
 
-        SenMLFloatRecord rec1("temp", SENML_UNIT_DEGREES_CELSIUS, 20.0);
+        SenMLFloatRecord rec1("temp", SENML_UNIT_DEGREES_CELSIUS, 20.12);
         dev1.add(&rec1);                      
 
         SenMLBinaryRecord rec2("blob");
