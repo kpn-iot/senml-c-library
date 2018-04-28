@@ -11,7 +11,7 @@ void setup(){
 }
 
 void loop(){
-    CoordinatesRecord rec("loc");
+    CoordinatesRecord rec("location");
     doc.add(&rec);                      
     rec.set(5.13, 30.10, 100.10);
     doc.toJson(&Serial);
