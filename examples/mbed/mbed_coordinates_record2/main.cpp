@@ -8,7 +8,7 @@ SenMLPack doc("device_name");
 int main() {
     senMLSetLogger(&pc);
     while(1) {
-        CoordinatesRecord rec("temp");
+        CoordinatesRecord rec("location");
         doc.add(&rec);                      
         rec.set(5.13, 30.1, 100.1);
         doc.toJson(&pc);

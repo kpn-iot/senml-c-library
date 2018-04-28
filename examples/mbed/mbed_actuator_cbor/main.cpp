@@ -8,7 +8,7 @@ void setTemp(int value){
 }
 
 SenMLPack doc("device_name");
-SenMLIntActuator rec("temp", SENML_UNIT_DEGREES_CELSIUS, setTemp);
+SenMLIntActuator rec(KPN_SENML_TEMPERATURE, SENML_UNIT_DEGREES_CELSIUS, setTemp);
 
 int main() {
     senMLSetLogger(&pc);

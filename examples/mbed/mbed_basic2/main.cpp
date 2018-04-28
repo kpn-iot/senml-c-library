@@ -3,7 +3,7 @@
 
 Serial pc(USBTX, USBRX);
 SenMLPack doc("deviId");
-SenMLFloatRecord temperature("temp", SENML_UNIT_DEGREES_CELSIUS);
+SenMLFloatRecord temperature(KPN_SENML_TEMPERATURE, SENML_UNIT_DEGREES_CELSIUS);
 SenMLBoolRecord doorPos("doorPos");
 SenMLStringRecord strVal("str val");
 

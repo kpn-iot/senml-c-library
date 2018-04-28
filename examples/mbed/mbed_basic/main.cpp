@@ -19,7 +19,7 @@ int main() {
     
     while(1) {
         int val = mypin.read();
-        SenMLFloatRecord rec("temp", SENML_UNIT_DEGREES_CELSIUS, val);
+        SenMLFloatRecord rec(KPN_SENML_TEMPERATURE, SENML_UNIT_DEGREES_CELSIUS, val);
         doc.add(&rec);                      
         
         doc.toJson(&pc);

@@ -9,7 +9,7 @@ int main() {
     senMLSetLogger(&pc);
     pc.printf("start \n\r");
     while(1) { 
-        SenMLFloatRecord rec("temp", SENML_UNIT_DEGREES_CELSIUS, 20);
+        SenMLFloatRecord rec(KPN_SENML_TEMPERATURE, SENML_UNIT_DEGREES_CELSIUS, 20);
         doc.add(&rec);                      
 
         doc.toCbor(&pc);                        //render it as a raw binary data blob directly to stream
