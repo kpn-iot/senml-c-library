@@ -15,7 +15,7 @@ int main() {
     doc.add(&rec);   
     pc.printf("start\r\n");
     while(1) {
-        const char* buffer = "[{\"n\":\"temp\",\"u\":\"Cel\",\"v\":23}]";
+        const char* buffer = "[{\"n\":\"temperature\",\"u\":\"Cel\",\"v\":23}]";
         doc.fromJson(buffer);
         pc.printf("done \r\n \r\n");
         wait(1);
