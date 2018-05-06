@@ -5,6 +5,9 @@
 
 #define BOOL_ACTUATOR_SIGNATURE void (*callback)(bool)
 
+/**
+ * A SenMLRecord that stores boolean data and supports actuation.
+ */ 
 class SenMLBoolActuator: public SenMLBoolRecord
 {
 public:

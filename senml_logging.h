@@ -10,6 +10,12 @@
 
 //contains a referenc to the global logger object assigned to the module
 extern Stream* _senml_logger;
+
+/**
+ * Assign a stream to the library that can be used to write log information to.
+ * @param logger a stream object that will be used for logging. 
+ * @returns none
+ */
 void senMLSetLogger(Stream* logger);
 
 #ifndef log_debug

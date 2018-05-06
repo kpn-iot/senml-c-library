@@ -4,6 +4,9 @@
 #include "senml_JsonListener.h"
 #include <senml_base_parser.h>
 
+/**
+ * Internal helper class for parsing json data.
+ */
 class SenMLJsonListener: public JsonListener, SenMLBaseParser {
 
   public:

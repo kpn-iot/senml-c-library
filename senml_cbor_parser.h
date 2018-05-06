@@ -13,6 +13,9 @@ enum SenMLCborDataType {};
 #define SENML_CBOR_VALUE 2
 
 
+/**
+ * Inernal helper class for parsing cbor data.
+ */
 class SenMLCborParser: public SenMLBaseParser {
 
   public:

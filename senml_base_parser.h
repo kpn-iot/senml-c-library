@@ -4,13 +4,14 @@
 #include <senml_pack.h>
 #include <senml_record.h>
 
-//base class for json and cbor parsers. Provides functionality to connect to and search in senml packs and recrods.
+/**
+ * base class for json and cbor parsers. Provides functionality to connect to 
+ * and search in senml packs and recrods. 
+*/
 class SenMLBaseParser {
 
   public:
     SenMLBaseParser(SenMLPack* root): root(root), curPack(root) {};
-
-
 
 
   private:

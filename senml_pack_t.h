@@ -3,6 +3,14 @@
 
 #include <senml_pack.h>
 
+/**
+ * A template class that can be used to create new SenMLPack types that store a base-value and/or base-sum 
+ * with a basic data type (no structs or classes).
+ * When you create a new class, you should always implement the following functions in order
+ * for the new class to operate correctly: fieldsToJson() and fieldsToCbor(). These functions are responsible
+ * for rendering both base-value and base-sum. This class does not implement any rendering.
+ * See previous implementations such as SenMLIntPack for inspiration.
+ */ 
 template <class T>
 class SenMLPackTemplate: public SenMLPack
 {
@@ -21,10 +29,28 @@ class SenMLPackTemplate: public SenMLPack
 
         ~SenMLPackTemplate(){};
 
+        /**
+         * Get the base-sum assigned to this pack object.
+         * @returns: the base-sum.
+         */
         T getBaseSum() {return _sum; } ;
+
+        /**
+         * Store the base-sum in the pack object.
+         * @returns: true (returns a value to support possible future extentions)
+         */
         bool setBaseSum(T value) {_sum = value; return true;};
 
+        /**
+         * Get the base-value assigned to this pack object.
+         * @returns: the base-value.
+         */
         T getBaseValue() {return _value; } ;
+
+        /**
+         * Store the base-value in the pack object.
+         * @returns: true (returns a value to support possible future extentions)
+         */
         bool setBaseValue(T value) {_value = value; return true;};
 
 protected:

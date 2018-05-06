@@ -5,6 +5,9 @@
 
 #define BINARY_ACTUATOR_SIGNATURE void (*callback)(const unsigned char*, int)
 
+/**
+ * A SenMLRecord that stores binary data and supports actuation.
+ */ 
 class SenMLBinaryActuator: public SenMLBinaryRecord
 {
     friend class SenMLCborParser;

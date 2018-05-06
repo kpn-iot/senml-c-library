@@ -3,6 +3,11 @@
 
 #include <senml_record.h>
 
+/**
+ * A SenMLRecord that stores binary data.
+ * This type of object can only be used for sensor data. If actuation is needed, use SenMLBinaryActuator
+ * instead.
+ */ 
 class SenMLBinaryRecord: public SenMLRecord
 {
 public:
@@ -17,17 +22,27 @@ public:
     */
     bool set(unsigned char* value, unsigned int length, double time = NAN);
 
-    /*
-    renders all the fields to json, without the starting and ending brackets.
-    Inheriters can extend this function if they want to add extra fields to the json output
-    Note: binary data is rendered as base64url-encoded
+    /**
+     * renders all the fields to json, without the starting and ending brackets.
+     * Inheriters can extend this function if they want to add extra fields to the json output
+     * note: this is public so that custom implementations for the record object can use other objects 
+     * internally and render to json using this function (ex: coordinatesRecord using 3 floatRecrods for lat, lon & alt.
+     * @returns: None
     */
     void fieldsToJson();
 
+    /**
+     * renders all the fields to cbor format. renders all the fields of the object without the length info 
+     * at the beginning
+     * note: this is public so that custom implementations for the record object can use other objects 
+     * internally and render to json using this function (ex: coordinatesRecord using 3 floatRecrods for 
+     * lat, lon & alt.
+     * @returns: The number of bytes that were written.
+    */
+    virtual int fieldsToCbor();
+
 protected:
 
-    //renders all the fields to cbor format. renders all the fields of the object without the {}
-    virtual int fieldsToCbor();
     
 private:
     unsigned char* _value;                  //raw data buffer (not null terminated)

@@ -59,6 +59,9 @@ See more at http://blog.squix.ch and https://github.com/squix78/json-streaming-p
 
 #define BUFFER_MAX_LENGTH  512
 
+/**
+ * Internal helper class for parsing json data.
+ */
 class JsonStreamingParser {
     public:
         JsonStreamingParser();

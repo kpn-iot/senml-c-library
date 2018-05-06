@@ -72,14 +72,15 @@ class SenMLRecord: public SenMLBase
          * @param absolute When true (default), the value will be interpreted as an absolute time stamp. If there 
          *                 is a parent SenMLPack, the value will be made relative to the pack's base time, if there is any.
          *                 When false, no conversion is done, but a parent SenMLPack has to be present.
-         * @returns true upon success, otherwise false.
+         * @returns true upon success, otherwise false. 
          */ 
         bool setTime(double value, bool absolute = true);
 
 
         /**
          * Get the name of the record.
-         * @returns the name of the record as an immutable string.
+         * @returns the name of the record as an immutable string. Don't delete this pointer, it refers to the 
+         *          internal buffer of the object and is managed by the record.
          */        
         inline const char* getName(){ return this->_name.c_str();}
 
@@ -94,17 +95,26 @@ class SenMLRecord: public SenMLBase
 
 
         /**
-         * Get the expected timestamp at which this record will be updated again.
-         * @returns a unix epoch time.
+         * Get the expected timestamp at which this record will be updated again. NaN represents 'no time assigned'.
+         * @returns a unix epoch time, relative to the parent SenMLPack object's base time (if any).
          */   
         inline int getUpdateTime(){ return this->_updateTime;}
 
         /**
          * Assign a timestamp to the record at which it is expected to update the value.
-         * @param value a unix epoch time.
-         * @returns none
+         * when absolute is true (default behaviour), the time value will be made relative to the 
+         * base time of the pack object, if it has a base time.
+         * See [base fields](https://tools.ietf.org/html/draft-ietf-core-senml-13#section-4.1) for more info on the time value.
+         * Possible reasons for failure:
+         *  - if there is a root object, but it is not a SenMLPack
+         *  - if absolute is false, but there is no parent SenMLPack object.
+         * @param value the unix epoch update time value to assign to the record
+         * @param absolute When true (default), the value will be interpreted as an absolute time stamp. If there 
+         *                 is a parent SenMLPack, the value will be made relative to the pack's base time, if there is any.
+         *                 When false, no conversion is done, but a parent SenMLPack has to be present.
+         * @returns true upon success, otherwise false. 
          */
-        inline void setUpdateTime(int value){ this->_updateTime = value; }
+        bool setUpdateTime(double value, bool absolute=true);
 
 
         /**
@@ -122,28 +132,50 @@ class SenMLRecord: public SenMLBase
          * @param value a SenMLUnit enum value representing the unit name.
          * @returns none
          */
-        void setUnit(SenMLUnit value){ this->_unit = value; }
+        void setUnit(SenMLUnit value){ this->_unit = value; } 
+
+
+        /**
+         * renders all the fields to json, without the starting and ending brackets.
+         * Inheriters can extend this function if they want to add extra fields to the json output
+         * note: this is public so that custom implementations for the record object can use other objects 
+         * internally and render to json using this function (ex: coordinatesRecord using 3 floatRecrods for lat, lon & alt.
+         * @returns: None
+        */
+        virtual void fieldsToJson();
+
+        /**
+         * renders all the fields to cbor format. renders all the fields of the object without the length info 
+         * at the beginning
+         * note: this is public so that custom implementations for the record object can use other objects 
+         * internally and render to json using this function (ex: coordinatesRecord using 3 floatRecrods for 
+         * lat, lon & alt.
+         * @returns: The number of bytes that were written.
+        */
+        virtual int fieldsToCbor();
+
+    protected:
+
+
+        /*
+        renders all the fields to json, including the starting and ending brackets.
+        Inheriters can extend this function if they want to add extra fields to the json output
+        */
+        virtual void contentToJson();
+
+        
+
+        //renders all the fields to cbor format. renders all the fields of the object including the 
+        //length info at the beginning
+        virtual int contentToCbor();
+
+
+        
 
         //This function is called by the root SenMLPack object to indicate that the object
         //should adjust it's time info relative to the new base time (if applicable)
         //doesn't do anything by default
         virtual void adjustToBaseTime(double prev, double time);
-
-        /*
-        renders all the fields to json, without the starting and ending brackets.
-        Inheriters can extend this function if they want to add extra fields to the json output
-        */
-        virtual void fieldsToJson();
-
-        virtual int contentToCbor();
-
-
-        //renders all the fields to cbor format. renders all the fields of the object without the {}
-        int fieldsToCbor();
-
-    protected:
-
-        virtual void contentToJson();
         
 
         //called while parsing a senml message, when the parser found the value for an SenMLJsonListener

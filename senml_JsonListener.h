@@ -35,6 +35,9 @@ See more at http://blog.squix.ch and https://github.com/squix78/json-streaming-p
     #include <Arduino.h>
 #endif
 
+/**
+ * Internal helper class for parsing json data.
+ */
 class JsonListener {
   private:
 

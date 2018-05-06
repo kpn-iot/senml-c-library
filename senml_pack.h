@@ -372,15 +372,27 @@ class SenMLPack: public SenMLBase
         inline SenMLBase* getFirst() { return this->_start; };
 
 
-    protected:
-
-        /*
-        renders all the fields to json, without the starting and ending brackets.
-        Inheriters can extend this function if they want to add extra fields to the json output
+        /**
+         * renders all the fields to json, without the starting and ending brackets.
+         * Inheriters can extend this function if they want to add extra fields to the json output
+         * note: this is public so that custom implementations for the record object can use other objects 
+         * internally and render to json using this function (ex: coordinatesRecord using 3 floatRecrods for lat, lon & alt.
+         * @returns: None
         */
         virtual void fieldsToJson();
 
+        /**
+         * renders all the fields to cbor format. renders all the fields of the object without the length info 
+         * at the beginning
+         * note: this is public so that custom implementations for the record object can use other objects 
+         * internally and render to json using this function (ex: coordinatesRecord using 3 floatRecrods for 
+         * lat, lon & alt.
+         * @returns: The number of bytes that were written.
+        */
         virtual int fieldsToCbor();
+
+    protected:
+
 
         //derived classes can use this function to see if the root object (getRoot) is a SenMLPack
         //class or not.

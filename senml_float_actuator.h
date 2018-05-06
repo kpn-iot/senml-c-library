@@ -5,6 +5,9 @@
 
 #define FLOAT_ACTUATOR_SIGNATURE void (*callback)(float)
 
+/**
+ * A SenMLRecord that stores float data and supports actuation.
+ */ 
 class SenMLFloatActuator: public SenMLFloatRecord
 {
 public:

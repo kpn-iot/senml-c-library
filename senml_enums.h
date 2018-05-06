@@ -2,7 +2,10 @@
 #define SENMLENUMS
 
 
-//data types that the value can have in senml
+/**
+ * Lists all the data types that a value can have in senml.
+ * This is primarely used for actuator callbacks on SenMLPack objects when no appropirate SenMLRecord could be found for the acutator command.
+ */
 enum SenMLDataType { //json data types:
                     SENML_TYPE_NR, SENML_TYPE_STRING, SENML_TYPE_BOOL, SENML_TYPE_DATA,
                     //cbor data types, which have already converted the data value
@@ -11,10 +14,15 @@ enum SenMLDataType { //json data types:
 
 extern const char* senml_units_names[];
 
-//used by some functions to determine how data should be read/rendered to the stream: in the original format
-//or converted to hex values. The latter is used for serial communication with a modem such as a lora modem.
+/**
+ * Determines how data should be read/rendered to the stream: in the original format
+ * or converted to hex values. The latter is used for serial communication with a modem such as a lora modem.
+ */
 enum SenMLStreamMethod {SENML_HEX, SENML_RAW};
 
+/**
+ * Lists all the units of measurement that are supported by SenML.
+ */
 enum SenMLUnit {SENML_UNIT_NONE, 
                 SENML_UNIT_METER,
                 SENML_UNIT_KILOGRAM,

@@ -5,6 +5,9 @@
 
 #define STRING_ACTUATOR_SIGNATURE void (*callback)(const char*)
 
+/**
+ * A SenMLRecord that stores text data and supports actuation.
+ */ 
 class SenMLStringActuator: public SenMLStringRecord
 {
 public:
@@ -15,7 +18,9 @@ public:
 
 protected:
 
-    //called while parsing a senml message, when the parser found the value for an SenMLJsonListener
+    /**
+     * called while parsing a senml message, when the parser found the value for an SenMLJsonListener
+     */
     virtual void actuate(const void* value, int dataLength, SenMLDataType dataType);
 
 private:

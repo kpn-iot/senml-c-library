@@ -5,6 +5,9 @@
 
 #define INT_ACTUATOR_SIGNATURE void (*callback)(int)
 
+/**
+ * A SenMLRecord that stores integer data and supports actuation.
+ */ 
 class SenMLIntActuator: public SenMLIntRecord
 {
 public:
@@ -15,7 +18,9 @@ public:
 
 protected:
 
-    //called while parsing a senml message, when the parser found the value for an SenMLJsonListener
+    /**
+     * called while parsing a senml message, when the parser found the value for an SenMLJsonListener
+     */
     virtual void actuate(const void* value, int dataLength, SenMLDataType dataType);
 
 private:
