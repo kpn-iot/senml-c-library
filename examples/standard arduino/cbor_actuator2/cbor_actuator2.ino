@@ -1,5 +1,4 @@
 #include <kpn_senml.h>
-#include <PrintEx.h>
 
 //example: [{-2:"gateway",0:"temp",1:"Cel",2:23.1}, {-2:"dev1",0:"distance",1:"m",2:1000}]
 //cbor to input: 82A4216767617465776179006474656D70016343656C02FB403719999999999AA4216464657631006864697374616E636501616D021903E8

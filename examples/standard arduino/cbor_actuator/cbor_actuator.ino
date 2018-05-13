@@ -1,5 +1,4 @@
 #include <kpn_senml.h>
-#include <PrintEx.h>
 
 
 void setTemp(int value){
