@@ -18,7 +18,7 @@ void setup(){
 }
 
 void loop(){
-    const char* buffer = "[{\"n\":\"temp\",\"u\":\"Cel\",\"v\":23.1}]";
+    const char* buffer = "[{\"n\":\"temperature\",\"u\":\"Cel\",\"v\":23.1}]";
     doc.fromJson(buffer);
     Serial.println();
     Serial.println("done");
