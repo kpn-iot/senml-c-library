@@ -3,7 +3,7 @@
     "port": "COM3",
     "output": "./build",
     "sketch1": "actuator1\\actuator1.ino",
-    "sketch2": "actuator2\\actuator2.ino",
+    "sketch": "actuator2\\actuator2.ino",
     "sketch3": "basic\\basic.ino",
     "sketch4": "basic_cbor\\basic_cbor.ino",
     "sketch5": "basic2\\basic2.ino",
@@ -15,5 +15,5 @@
     "sketchb": "gateway\\gateway.ino",
     "sketchc": "marvin_lora\\marvin_lora.ino",
     "sketchd": "to_string\\to_string.ino",
-    "sketch": "base\\base.ino"
+    "sketche": "base\\base.ino"
 }
