@@ -1,3 +1,17 @@
+/*  _  __  ____    _   _ 
+ * | |/ / |  _ \  | \ | |
+ * | ' /  | |_) | |  \| |
+ * | . \  |  __/  | |\  |
+ * |_|\_\ |_|     |_| \_|
+ * 
+ * (c) 2018 KPN
+ * License: GNU General Public License v3.0.
+ * Author: Jan Bogaerts
+ * 
+ * support for string sensors
+ */
+
+
 #include <senml_string_record.h>
 #include <cbor.h>
 #include <senml_helpers.h>
