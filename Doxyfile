@@ -58,7 +58,7 @@ PROJECT_LOGO           = "C:/Users/janbo/Google Drive/projects/kpn/kpn.png"
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = "C:\Users\janbo\Google Drive\projects\kpn\library\senml\cpp\libraries\senml\docs"
+OUTPUT_DIRECTORY       = "C:\Users\janbo\Google Drive\projects\kpn\library\senml\cpp\docs"
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -790,7 +790,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = "C:\Users\janbo\Google Drive\projects\kpn\library\senml\cpp\libraries\senml" \
+INPUT                  = "C:\Users\janbo\Google Drive\projects\kpn\library\senml\cpp" \
                          index.md
 
 # This tag can be used to specify the character encoding of the source files
