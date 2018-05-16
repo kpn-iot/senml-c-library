@@ -1,3 +1,16 @@
+/*  _  __  ____    _   _ 
+ * | |/ / |  _ \  | \ | |
+ * | ' /  | |_) | |  \| |
+ * | . \  |  __/  | |\  |
+ * |_|\_\ |_|     |_| \_|
+ * 
+ * (c) 2018 KPN
+ * License: MIT license 
+ * Author: Jan Bogaerts
+ * 
+ * basic usage for esp32 devices
+ */
+
 #include <kpn_senml.h>
 
 SenMLPack doc("device_name");

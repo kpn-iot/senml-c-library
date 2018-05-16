@@ -1,3 +1,16 @@
+/*  _  __  ____    _   _ 
+ * | |/ / |  _ \  | \ | |
+ * | ' /  | |_) | |  \| |
+ * | . \  |  __/  | |\  |
+ * |_|\_\ |_|     |_| \_|
+ * 
+ * (c) 2018 KPN
+ * License: MIT license 
+ * Author: Jan Bogaerts
+ * 
+ * cbor actuator example for arduino devices
+ */
+
 #include <kpn_senml.h>
 
 //example: [{-2:"gateway",0:"temp",1:"Cel",2:23.1}, {-2:"dev1",0:"distance",1:"m",2:1000}]

@@ -1,3 +1,16 @@
+/*  _  __  ____    _   _ 
+ * | |/ / |  _ \  | \ | |
+ * | ' /  | |_) | |  \| |
+ * | . \  |  __/  | |\  |
+ * |_|\_\ |_|     |_| \_|
+ * 
+ * (c) 2018 KPN
+ * License: MIT license 
+ * Author: Jan Bogaerts
+ * 
+ * cbor actuators for mbed devices
+ */
+
 #include "mbed.h"
 #include <kpn_senml.h>
 

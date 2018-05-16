@@ -1,3 +1,16 @@
+/*  _  __  ____    _   _ 
+ * | |/ / |  _ \  | \ | |
+ * | ' /  | |_) | |  \| |
+ * | . \  |  __/  | |\  |
+ * |_|\_\ |_|     |_| \_|
+ * 
+ * (c) 2018 KPN
+ * License: MIT license 
+ * Author: Jan Bogaerts
+ * 
+ * custom records example for arduino devices
+ */
+
 #include "coordinates_record.h"
 #include <senml_helpers.h>
 

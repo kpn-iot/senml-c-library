@@ -1,3 +1,4 @@
+
 /*
 MarvinBase
 
@@ -14,6 +15,19 @@ Instructions:
 	- Please adjust ABP adresses and key below to match yours
 	- The loop() is where the actual stuff happens. Adjust input of send_lora_data() in void loop() to send your own data.
 */
+
+/*  _  __  ____    _   _ 
+ * | |/ / |  _ \  | \ | |
+ * | ' /  | |_) | |  \| |
+ * | . \  |  __/  | |\  |
+ * |_|\_\ |_|     |_| \_|
+ * 
+ * (c) 2018 KPN
+ * License: MIT license 
+ * Author: Jan Bogaerts
+ * 
+ * modified example from marvin for sending senml
+ */
 
 #include <kpn_senml.h>
 
