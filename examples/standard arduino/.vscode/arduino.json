@@ -15,5 +15,6 @@
     "sketchb": "gateway\\gateway.ino",
     "sketchc": "marvin_lora\\marvin_lora.ino",
     "sketchd": "to_string\\to_string.ino",
-    "sketche": "base\\base.ino"
+    "sketche": "base\\base.ino",
+    "sketchf": "actuator1\\actuator1.ino"
 }
