@@ -1,3 +1,17 @@
+/*  _  __  ____    _   _ 
+ * | |/ / |  _ \  | \ | |
+ * | ' /  | |_) | |  \| |
+ * | . \  |  __/  | |\  |
+ * |_|\_\ |_|     |_| \_|
+ * 
+ * (c) 2018 KPN
+ * License: GNU General Public License v3.0.
+ * Author: Jan Bogaerts
+ * 
+ * parse cbor
+ */
+
+
 #include <senml_cbor_parser.h>
 #include <senml_helpers.h>
 #include <senml_binary_actuator.h>

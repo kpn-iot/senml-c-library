@@ -1,3 +1,17 @@
+/*  _  __  ____    _   _ 
+ * | |/ / |  _ \  | \ | |
+ * | ' /  | |_) | |  \| |
+ * | . \  |  __/  | |\  |
+ * |_|\_\ |_|     |_| \_|
+ * 
+ * (c) 2018 KPN
+ * License: GNU General Public License v3.0.
+ * Author: Jan Bogaerts
+ * 
+ * support for bool sensor 
+ */
+
+
 #include <senml_bool_record.h>
 #include <cbor.h>
 #include <senml_helpers.h>
