@@ -1,0 +1,20 @@
+{
+    "board": "SODAQ:samd:sodaq_one",
+    "port": "COM11",
+    "output": "./build",
+    "sketch1": "actuator1\\actuator1.ino",
+    "sketch": "basic.ino",
+    "sketch3": "basic\\basic.ino",
+    "sketch4": "basic_cbor\\basic_cbor.ino",
+    "sketch5": "basic2\\basic2.ino",
+    "sketch6": "cbor_actuator\\cbor_actuator.ino",
+    "sketch7": "cbor_actuator2\\cbor_actuator2.ino",
+    "sketch8": "coordinates_record\\coordinates_record.ino",
+    "sketch9": "coordinates_record2\\coordinates_record2.ino",
+    "sketcha": "simple_actuator\\simple_actuator.ino",
+    "sketchb": "gateway\\gateway.ino",
+    "sketchc": "marvin_lora\\marvin_lora.ino",
+    "sketchd": "to_string\\to_string.ino",
+    "sketche": "base\\base.ino",
+    "sketchf": "actuator1\\actuator1.ino"
+}
