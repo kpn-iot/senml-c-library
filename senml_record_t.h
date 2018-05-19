@@ -48,6 +48,51 @@ public:
      */
     bool asSum() {return this->_valAsSum; };
 
+	#ifdef __MBED__
+
+	/**
+     * Assign a value to the SenMLRecord. You can optionally assign the time at which the measurement was taken
+     * and if it should be interpreted as a sum or regular value.
+	 * No timestamp is added and the value is interpreted as a regular value, not as a sum
+     * @param  value the value to store in the record
+     * @returns: true if the operation was succesful. See setTime() for more info when the operation can fail.
+     */
+	bool set(T value)
+    {
+        return this->set(value, (double)NAN, false);
+    };
+    
+    /**
+     * Assign a value to the SenMLRecord. You can optionally assign the time at which the measurement was taken
+     * and if it should be interpreted as a sum or regular value.
+	 * The value is interpreted as a regular value, not as a sum
+     * @param  value the value to store in the record
+     * @param time optional (default = NAN, meaning not time info). The time at which the measurement was taken.
+     *             This should always be the absolute time value which will be converted relative to the base
+     *             time when applicable (if the root is a SenMLPack with baseTime) . If you want to set the time 
+     *             manually relative to the basetime of the root-pack, then use setTime() instead.
+     * @returns: true if the operation was succesful. See setTime() for more info when the operation can fail.
+     */
+    bool set(T value, double time)
+    {
+        return this->set(value, time, false);
+    };
+    
+    /**
+     * Assign a value to the SenMLRecord. You can optionally assign the time at which the measurement was taken
+     * and if it should be interpreted as a sum or regular value.
+     * @param  value the value to store in the record
+     * @param time optional (default = NAN, meaning not time info). The time at which the measurement was taken.
+     *             This should always be the absolute time value which will be converted relative to the base
+     *             time when applicable (if the root is a SenMLPack with baseTime) . If you want to set the time 
+     *             manually relative to the basetime of the root-pack, then use setTime() instead.
+     * @param asSum when true, the value will be interpreted as a sum, otherwise as a regular value.
+     * @returns: true if the operation was succesful. See setTime() for more info when the operation can fail.
+     */
+    bool set(T value, double time, bool asSum)
+	
+	#else
+	
     /**
      * Assign a value to the SenMLRecord. You can optionally assign the time at which the measurement was taken
      * and if it should be interpreted as a sum or regular value.
@@ -60,12 +105,12 @@ public:
      * @returns: true if the operation was succesful. See setTime() for more info when the operation can fail.
      */
     bool set(T value, double time = (double)NAN, bool asSum = false)
+	#endif
     {
         this->_value = value; 
         this->_valAsSum = asSum;
         return this->setTime(time);
     };
-
 
 protected:
 

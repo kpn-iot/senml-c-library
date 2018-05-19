@@ -11,7 +11,7 @@
  * support for string actuators
  */
 
-#include <senml_String_actuator.h>
+#include <senml_string_actuator.h>
 #include <senml_logging.h>
 
 void SenMLStringActuator::actuate(const void* value, int dataLength, SenMLDataType dataType)

@@ -15,7 +15,7 @@
 #ifndef SENMLCBOR
 #define SENMLCBOR
 
-#include <stream.h>
+#include <Stream.h>
 #include <stddef.h>
 
 #define SENML_BVER_LABEL    -1
@@ -199,6 +199,7 @@ size_t cbor_deserialize_float(float *val);
 size_t cbor_deserialize_double(double *val);
 
 #endif // SENMLCBOR
+
 
 
 

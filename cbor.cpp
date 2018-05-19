@@ -110,12 +110,21 @@ double decode_float_half(unsigned char *halfp)
     int mant = half & 0x3ff;
     double val;
 
+	#ifdef __MBED__
+	if (exp == 0) {
+        val = ldexp((double)mant, -24);
+    }
+    else if (exp != 31) {
+        val = ldexp((double)(mant + 1024), exp - 25);
+    }
+	#else
     if (exp == 0) {
         val = ldexp(mant, -24);
     }
     else if (exp != 31) {
         val = ldexp(mant + 1024, exp - 25);
     }
+	#endif
     else {
         val = mant == 0 ? INFINITY : NAN;
     }

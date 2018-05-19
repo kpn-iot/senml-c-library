@@ -28,13 +28,36 @@ public:
     SenMLBinaryRecord(const char* name, SenMLUnit unit);
     ~SenMLBinaryRecord(){ if(this->_value) free(this->_value); };
 
-
-    /*set the value and length.
-    warning: value is not copied over. a direct reference to the buffer is stored, so if this
-    memory is changed/freed, then the data stored in the object will also be changed.
+	
+	#ifdef __MBED__
+	
+	/** 
+	* set the value and length.
+    * warning: value is not copied over. a direct reference to the buffer is stored, so if this
+    * memory is changed/freed, then the data stored in the object will also be changed.
+    */
+	bool set(unsigned char* value, unsigned int length)
+    {
+        return this->set(value, length, NAN);
+    }
+    
+    /** 
+	* set the value and length.
+    * warning: value is not copied over. a direct reference to the buffer is stored, so if this
+    * memory is changed/freed, then the data stored in the object will also be changed.
+    */
+    bool set(unsigned char* value, unsigned int length, double time);
+    
+	#else
+    /** 
+	* set the value and length.
+    * warning: value is not copied over. a direct reference to the buffer is stored, so if this
+    * memory is changed/freed, then the data stored in the object will also be changed.
     */
     bool set(unsigned char* value, unsigned int length, double time = NAN);
 
+	#endif
+	
     /**
      * renders all the fields to json, without the starting and ending brackets.
      * Inheriters can extend this function if they want to add extra fields to the json output
