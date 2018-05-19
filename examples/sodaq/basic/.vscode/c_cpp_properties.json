@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:\\Users\\janbo\\AppData\\Local\\Arduino15\\packages\\SODAQ\\hardware\\samd\\1.6.17\\cores\\arduino",
+                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino",
+                "C:\\Users\\janbo\\Documents\\Arduino\\hardware\\espressif\\esp32\\cores\\esp32"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": false,
+                "path": [
+                    "C:\\Users\\janbo\\AppData\\Local\\Arduino15\\packages\\SODAQ\\hardware\\samd\\1.6.17\\cores\\arduino",
+                    "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino",
+                    "C:\\Users\\janbo\\Documents\\Arduino\\hardware\\espressif\\esp32\\cores\\esp32"
+                ]
+            },
+            "intelliSenseMode": "msvc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
