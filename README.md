@@ -1,3 +1,5 @@
+**:warning: DEPRECATED :warning: This repository has been discontinued in favor of our [KPN Things Device SDK](https://github.com/kpn-iot/thingsml-c-library), an evolution of this library that also supports ThingsML, HTTP POST to KPN Things, and Firmware over the air through KPN Things. [Learn more about the KPN Things Device SDK](https://docs.kpnthings.com/dm/devices/sdk).**
+
 # Introduction
 
 The KPN SenML library helps you create and parse [senml documents](https://tools.ietf.org/html/draft-ietf-core-senml-13)
